@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barbería Pro - Sistema de Gestión</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .income-chart { height: 200px; }
+        .chart-bar { width: 30px; background-color: #3b82f6; margin: 0 5px; }
+        .calendar-day { cursor: pointer; }
+        .calendar-day.selected { background-color: #3b82f6; color: white; }
+        .calendar-day.has-appointments { background-color: #e0f2fe; }
+        .appointment-item { border-left: 4px solid #3b82f6; }
+        .low-stock { background-color: #fef2f2; border-left: 4px solid #ef4444; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Encabezado -->
+    <header class="bg-blue-800 text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold">Barbería Pro</h1>
+            <div class="text-sm">
+                <span id="current-date"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="container mx-auto p-4 pb-20">
+        <!-- Pestañas de navegación -->
+        <div class="bg-white rounded-lg shadow mb-4 overflow-hidden">
+            <div class="flex overflow-x-auto">
+                <button class="tab-btn py-3 px-4 flex-1 text-center font-medium text-gray-600 hover:text-blue-600 transition-colors" data-tab="services">
+                    <i class="fas fa-cut block text-lg mb-1"></i>
+                    <span class="text-xs">Servicios</span>
+                </button>
+                <button class="tab-btn py-3 px-4 flex-1 text-center font-medium text-gray-600 hover:text-blue-600 transition-colors" data-tab="clients">
+                    <i class="fas fa-users block text-lg mb-1"></i>
+                    <span class="text-xs">Clientes</span>
+                </button>
+                <button class="tab-btn py-3 px-4 flex-1 text-center font-medium text-gray-600 hover:text-blue-600 transition-colors" data-tab="appointments">
+                    <i class="fas fa-calendar-alt block text-lg mb-1"></i>
+                    <span class="text-xs">Citas</span>
+                </button>
+                <button class="tab-btn py-3 px-4 flex-1 text-center font-medium text-gray-600 hover:text-blue-600 transition-colors" data-tab="income">
+                    <i class="fas fa-chart-line block text-lg mb-1"></i>
+                    <span class="text-xs">Ingresos</span>
+                </button>
+                <button class="tab-btn py-3 px-4 flex-1 text-center font-medium text-gray-600 hover:text-blue-600 transition-colors" data-tab="inventory">
+                    <i class="fas fa-boxes block text-lg mb-1"></i>
+                    <span class="text-xs">Inventario</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Contenido de las pestañas -->
+        
+        <!-- Gestión de Servicios -->
+        <div id="services" class="tab-content active">
+            <div class="bg-white rounded-lg shadow p-4 mb-4">
+                <h2 class="text-lg font-bold mb-4">Gestión de Servicios</h2>
+                
+                <!-- Formulario para agregar servicio -->
+                <form id="service-form" class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                        <input type="text" id="service-name" class="w-full p-2 border border-gray-300 rounded-md" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Precio ($)</label>
+                        <input type="number" id="service-price" class="w-full p-2 border border-gray-300 rounded-md" min="0" step="0.01" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Duración (min)</label>
+                        <input type="number" id="service-duration" class="w-full p-2 border border-gray-300 rounded-md" min="1" required>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
+                            Agregar Servicio
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Lista de servicios -->
+                <div>
+                    <h3 class="text-md font-semibold mb-2">Servicios Disponibles</h3>
+                    <div id="services-list" class="space-y-3">
+                        <!-- Los servicios se cargarán aquí dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gestión de Clientes -->
+        <div id="clients" class="tab-content">
+            <div class="bg-white rounded-lg shadow p-4 mb-4">
+                <h2 class="text-lg font-bold mb-4">Gestión de Clientes</h2>
+                
+                <!-- Formulario para agregar cliente -->
+                <form id="client-form" class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                        <input type="text" id="client-name" class="w-full p-2 border border-gray-300 rounded-md" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                        <input type="tel" id="client-phone" class="w-full p-2 border border-gray-300 rounded-md" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email (opcional)</label>
+                        <input type="email" id="client-email" class="w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="md:col-span-3 flex justify-end">
+                        <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
+                            Agregar Cliente
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Búsqueda de clientes -->
+                <div class="mb-4">
+                    <input type="text" id="client-search" placeholder="Buscar cliente..." class="w-full p-2 border border-gray-300 rounded-md">
+                </div>
+                
+                <!-- Lista de clientes -->
+                <div>
+                    <h3 class="text-md font-semibold mb-2">Clientes Registrados</h3>
+                    <div id="clients-list" class="space-y-3">
+                        <!-- Los clientes se cargarán aquí dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agenda de Citas -->
+        <div id="appointments" class="tab-content">
+            <div class="bg-white rounded-lg shadow p-4 mb-4">
+                <h2 class="text-lg font-bold mb-4">Agenda de Citas</h2>
+                
+                <!-- Calendario -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <button id="prev-month" class="p-2 rounded-full hover:bg-gray-100">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <h3 id="current-month" class="text-lg font-semibold">Enero 2023</h3>
+                        <button id="next-month" class="p-2 rounded-full hover:bg-gray-100">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div id="calendar" class="grid grid-cols-7 gap-1 mb-4">
+                        <!-- Los días del calendario se generarán dinámicamente -->
+                    </div>
+                </div>
+                
+                <!-- Formulario para agregar cita -->
+                <form id="appointment-form" class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+                        <input type="date" id="appointment-date" class="w-full p-2 border border-gray-300 rounded-md" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Hora</label>
+                        <input type="time" id="appointment-time" class="w-full p-2 border border-gray-300 rounded-md" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+                        <select id="appointment-client" class="w-full p-2 border border-gray-300 rounded-md" required>
+                            <!-- Las opciones se cargarán dinámicamente -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Servicio</label>
+                        <select id="appointment-service" class="w-full p-2 border border-gray-300 rounded-md" required>
+                            <!-- Las opciones se cargarán dinámicamente -->
+                        </select>
+                    </div>
+                    <div class="md:col-span-4 flex justify-end">
+                        <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
+                            Programar Cita
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Citas del día -->
+                <div>
+                    <h3 id="appointments-day-title" class="text-md font-semibold mb-2">Citas de Hoy</h3>
+                    <div id="appointments-list" class="space-y-3">
+                        <!-- Las citas se cargarán aquí dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control de Ganancias -->
+        <div id="income" class="tab-content">
+            <div class="bg-white rounded-lg shadow p-4 mb-4">
+                <h2 class="text-lg font-bold mb-4">Control de Ganancias</h2>
+                
+                <!-- Resumen de ganancias -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h3 class="text-sm font-medium text-blue-800">Ganancias Diarias</h3>
+                        <p id="daily-income" class="text-2xl font-bold text-blue-600">$0.00</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <h3 class="text-sm font-medium text-green-800">Ganancias Semanales</h3>
+                        <p id="weekly-income" class="text-2xl font-bold text-green-600">$0.00</p>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg">
+                        <h3 class="text-sm font-medium text-purple-800">Ganancias Mensuales</h3>
+                        <p id="monthly-income" class="text-2xl font-bold text-purple-600">$0.00</p>
+                    </div>
+                </div>
+                
+                <!-- Filtros -->
+                <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Inicio</label>
+                        <input type="date" id="income-start-date" class="w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Fin</label>
+                        <input type="date" id="income-end-date" class="w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="flex items-end">
+                        <button id="filter-income" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
+                            Filtrar
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Gráfico de ingresos -->
+                <div class="mb-6">
+                    <h3 class="text-md font-semibold mb-2">Gráfico de Ingresos</h3>
+                    <div id="income-chart" class="income-chart flex items-end justify-center border border-gray-200 rounded-lg p-4">
+                        <!-- El gráfico se generará dinámicamente -->
+                    </div>
+                </div>
+                
+                <!-- Historial de ingresos -->
+                <div>
+                    <h3 class="text-md font-semibold mb-2">Historial de Ingresos</h3>
+                    <div id="income-history" class="space-y-3">
+                        <!-- El historial se cargará aquí dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gestión de Inventario -->
+        <div id="inventory" class="tab-content">
+            <div class="bg-white rounded-lg shadow p-4 mb-4">
+                <h2 class="text-lg font-bold mb-4">Gestión de Inventario</h2>
+                
+                <!-- Formulario para agregar producto -->
+                <form id="inventory-form" class="mb-6 grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                        <input type="text" id="product-name" class="w-full p-2 border border-gray-300 rounded-md" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
+                        <input type="number" id="product-quantity" class="w-full p-2 border border-gray-300 rounded-md" min="0" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mínimo</label>
+                        <input type="number" id="product-minimum" class="w-full p-2 border border-gray-300 rounded-md" min="0" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Precio ($)</label>
+                        <input type="number" id="product-price" class="w-full p-2 border border-gray-300 rounded-md" min="0" step="0.01" required>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
+                            Agregar
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Alertas de inventario bajo -->
+                <div id="inventory-alerts" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <h3 class="text-md font-semibold text-red-800 mb-2">Alertas de Inventario</h3>
+                    <div id="alerts-list">
+                        <!-- Las alertas se cargarán aquí dinámicamente -->
+                    </div>
+                </div>
+                
+                <!-- Lista de productos -->
+                <div>
+                    <h3 class="text-md font-semibold mb-2">Productos en Inventario</h3>
+                    <div id="inventory-list" class="space-y-3">
+                        <!-- Los productos se cargarán aquí dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Barra de navegación inferior -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-2 flex justify-around">
+        <button class="tab-btn flex flex-col items-center p-2 text-blue-600" data-tab="services">
+            <i class="fas fa-cut text-lg"></i>
+            <span class="text-xs mt-1">Servicios</span>
+        </button>
+        <button class="tab-btn flex flex-col items-center p-2 text-gray-500" data-tab="clients">
+            <i class="fas fa-users text-lg"></i>
+            <span class="text-xs mt-1">Clientes</span>
+        </button>
+        <button class="tab-btn flex flex-col items-center p-2 text-gray-500" data-tab="appointments">
+            <i class="fas fa-calendar-alt text-lg"></i>
+            <span class="text-xs mt-1">Citas</span>
+        </button>
+        <button class="tab-btn flex flex-col items-center p-2 text-gray-500" data-tab="income">
+            <i class="fas fa-chart-line text-lg"></i>
+            <span class="text-xs mt-1">Ingresos</span>
+        </button>
+        <button class="tab-btn flex flex-col items-center p-2 text-gray-500" data-tab="inventory">
+            <i class="fas fa-boxes text-lg"></i>
+            <span class="text-xs mt-1">Inventario</span>
+        </button>
+    </nav>
+
+    <!-- Modal para edición -->
+    <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 id="modal-title" class="text-lg font-bold mb-4">Editar</h3>
+            <div id="modal-content">
+                <!-- El contenido del modal se cargará dinámicamente -->
+            </div>
+            <div class="flex justify-end mt-6 space-x-2">
+                <button id="modal-cancel" class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancelar</button>
+                <button id="modal-save" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== DATOS INICIALES Y CONFIGURACIÓN ==========
+        
+        // Datos de ejemplo para inicializar la aplicación
+        const initialData = {
+            services: [
+                { id: 1, name: "Corte de pelo", price: 15.00, duration: 30 },
+                { id: 2, name: "Corte + barba", price: 25.00, duration: 45 },
+                { id: 3, name: "Solo barba", price: 10.00, duration: 20 }
+            ],
+            clients: [
+                { id: 1, name: "Juan Pérez", phone: "555-1234", email: "juan@example.com" },
+                { id: 2, name: "María García", phone: "555-5678", email: "maria@example.com" },
+                { id: 3, name: "Carlos López", phone: "555-9012", email: "" }
+            ],
+            appointments: [
+                { id: 1, date: new Date().toISOString().split('T')[0], time: "10:00", clientId: 1, serviceId: 1, status: "scheduled" },
+                { id: 2, date: new Date().toISOString().split('T')[0], time: "11:30", clientId: 2, serviceId: 2, status: "scheduled" }
+            ],
+            income: [
+                { id: 1, date: new Date().toISOString().split('T')[0], amount: 15.00, serviceId: 1, clientId: 1 },
+                { id: 2, date: new Date().toISOString().split('T')[0], amount: 25.00, serviceId: 2, clientId: 2 }
+            ],
+            inventory: [
+                { id: 1, name: "Tijeras profesionales", quantity: 5, minimum: 2, price: 45.00 },
+                { id: 2, name: "Máquina de cortar", quantity: 3, minimum: 2, price: 85.00 },
+                { id: 3, name: "Gel para cabello", quantity: 10, minimum: 5, price: 12.00 },
+                { id: 4, name: "Cera para barba", quantity: 2, minimum: 5, price: 15.00 }
+            ]
+        };
+
+        // Estado de la aplicación
+        let appState = {
+            currentTab: 'services',
+            currentMonth: new Date().getMonth(),
+            currentYear: new Date().getFullYear(),
+            editingItem: null,
+            editingType: null
+        };
+
+        // ========== FUNCIONES DE PERSISTENCIA ==========
+
+        // Cargar datos del localStorage o inicializar con datos de ejemplo
+        function loadData() {
+            const services = localStorage.getItem('barberia-services');
+            const clients = localStorage.getItem('barberia-clients');
+            const appointments = localStorage.getItem('barberia-appointments');
+            const income = localStorage.getItem('barberia-income');
+            const inventory = localStorage.getItem('barberia-inventory');
+
+            return {
+                services: services ? JSON.parse(services) : initialData.services,
+                clients: clients ? JSON.parse(clients) : initialData.clients,
+                appointments: appointments ? JSON.parse(appointments) : initialData.appointments,
+                income: income ? JSON.parse(income) : initialData.income,
+                inventory: inventory ? JSON.parse(inventory) : initialData.inventory
+            };
+        }
+
+        // Guardar datos en localStorage
+        function saveData(data) {
+            try {
+                localStorage.setItem('barberia-services', JSON.stringify(data.services));
+                localStorage.setItem('barberia-clients', JSON.stringify(data.clients));
+                localStorage.setItem('barberia-appointments', JSON.stringify(data.appointments));
+                localStorage.setItem('barberia-income', JSON.stringify(data.income));
+                localStorage.setItem('barberia-inventory', JSON.stringify(data.inventory));
+                return true;
+            } catch (error) {
+                console.error('Error al guardar datos:', error);
+                return false;
+            }
+        }
+
+        // ========== FUNCIONES DE GESTIÓN DE DATOS ==========
+
+        // Generar un ID único
+        function generateId(items) {
+            return items.length > 0 ? Math.max(...items.map(item => item.id)) + 1 : 1;
+        }
+
+        // Obtener datos actualizados
+        function getData() {
+            return loadData();
+        }
+
+        // Actualizar datos
+        function updateData(updates) {
+            const currentData = getData();
+            const newData = { ...currentData, ...updates };
+            return saveData(newData);
+        }
+
+        // ========== FUNCIONES DE INTERFAZ ==========
+
+        // Cambiar entre pestañas
+        function switchTab(tabName) {
+            // Ocultar todas las pestañas
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Mostrar la pestaña seleccionada
+            document.getElementById(tabName).classList.add('active');
+            
+            // Actualizar botones de navegación
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.dataset.tab === tabName) {
+                    btn.classList.remove('text-gray-500');
+                    btn.classList.add('text-blue-600');
+                } else {
+                    btn.classList.remove('text-blue-600');
+                    btn.classList.add('text-gray-500');
+                }
+            });
+            
+            // Actualizar estado
+            appState.currentTab = tabName;
+            
+            // Actualizar contenido específico de la pestaña
+            updateTabContent(tabName);
+        }
+
+        // Actualizar contenido específico de cada pestaña
+        function updateTabContent(tabName) {
+            const data = getData();
+            
+            switch(tabName) {
+                case 'services':
+                    renderServices(data.services);
+                    break;
+                case 'clients':
+                    renderClients(data.clients);
+                    break;
+                case 'appointments':
+                    renderCalendar(data.appointments);
+                    renderAppointments(data.appointments, data.clients, data.services);
+                    populateClientServiceSelects(data.clients, data.services);
+                    break;
+                case 'income':
+                    updateIncomeSummary(data.income);
+                    renderIncomeChart(data.income);
+                    renderIncomeHistory(data.income, data.services, data.clients);
+                    break;
+                case 'inventory':
+                    renderInventoryAlerts(data.inventory);
+                    renderInventory(data.inventory);
+                    break;
+            }
+        }
+
+        // Mostrar modal de edición
+        function showEditModal(type, item) {
+            appState.editingType = type;
+            appState.editingItem = item;
+            
+            const modal = document.getElementById('edit-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalContent = document.getElementById('modal-content');
+            
+            // Configurar título y contenido según el tipo
+            let title = '';
+            let formHTML = '';
+            
+            switch(type) {
+                case 'service':
+                    title = 'Editar Servicio';
+                    formHTML = `
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                                <input type="text" id="edit-service-name" class="w-full p-2 border border-gray-300 rounded-md" value="${item.name}" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Precio ($)</label>
+                                <input type="number" id="edit-service-price" class="w-full p-2 border border-gray-300 rounded-md" value="${item.price}" min="0" step="0.01" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Duración (min)</label>
+                                <input type="number" id="edit-service-duration" class="w-full p-2 border border-gray-300 rounded-md" value="${item.duration}" min="1" required>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'client':
+                    title = 'Editar Cliente';
+                    formHTML = `
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                                <input type="text" id="edit-client-name" class="w-full p-2 border border-gray-300 rounded-md" value="${item.name}" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                                <input type="tel" id="edit-client-phone" class="w-full p-2 border border-gray-300 rounded-md" value="${item.phone}" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email (opcional)</label>
+                                <input type="email" id="edit-client-email" class="w-full p-2 border border-gray-300 rounded-md" value="${item.email}">
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'inventory':
+                    title = 'Editar Producto';
+                    formHTML = `
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                                <input type="text" id="edit-product-name" class="w-full p-2 border border-gray-300 rounded-md" value="${item.name}" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
+                                <input type="number" id="edit-product-quantity" class="w-full p-2 border border-gray-300 rounded-md" value="${item.quantity}" min="0" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Mínimo</label>
+                                <input type="number" id="edit-product-minimum" class="w-full p-2 border border-gray-300 rounded-md" value="${item.minimum}" min="0" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Precio ($)</label>
+                                <input type="number" id="edit-product-price" class="w-full p-2 border border-gray-300 rounded-md" value="${item.price}" min="0" step="0.01" required>
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            modalTitle.textContent = title;
+            modalContent.innerHTML = formHTML;
+            modal.classList.remove('hidden');
+        }
+
+        // Ocultar modal de edición
+        function hideEditModal() {
+            const modal = document.getElementById('edit-modal');
+            modal.classList.add('hidden');
+            appState.editingItem = null;
+            appState.editingType = null;
+        }
+
+        // ========== FUNCIONES ESPECÍFICAS DE CADA MÓDULO ==========
+
+        // ===== SERVICIOS =====
+
+        // Renderizar lista de servicios
+        function renderServices(services) {
+            const container = document.getElementById('services-list');
+            
+            if (services.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No hay servicios registrados</p>';
+                return;
+            }
+            
+            container.innerHTML = services.map(service => `
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <h4 class="font-medium">${service.name}</h4>
+                        <p class="text-sm text-gray-600">$${service.price.toFixed(2)} - ${service.duration} min</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="edit-service p-2 text-blue-600 hover:text-blue-800" data-id="${service.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="delete-service p-2 text-red-600 hover:text-red-800" data-id="${service.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Agregar event listeners para los botones
+            document.querySelectorAll('.edit-service').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const serviceId = parseInt(btn.dataset.id);
+                    const service = services.find(s => s.id === serviceId);
+                    showEditModal('service', service);
+                });
+            });
+            
+            document.querySelectorAll('.delete-service').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const serviceId = parseInt(btn.dataset.id);
+                    deleteService(serviceId);
+                });
+            });
+        }
+
+        // Agregar servicio
+        function addService(name, price, duration) {
+            const data = getData();
+            const newService = {
+                id: generateId(data.services),
+                name,
+                price: parseFloat(price),
+                duration: parseInt(duration)
+            };
+            
+            data.services.push(newService);
+            
+            if (updateData({ services: data.services })) {
+                renderServices(data.services);
+                document.getElementById('service-form').reset();
+                return true;
+            }
+            return false;
+        }
+
+        // Editar servicio
+        function editService(id, name, price, duration) {
+            const data = getData();
+            const serviceIndex = data.services.findIndex(s => s.id === id);
+            
+            if (serviceIndex !== -1) {
+                data.services[serviceIndex] = {
+                    ...data.services[serviceIndex],
+                    name,
+                    price: parseFloat(price),
+                    duration: parseInt(duration)
+                };
+                
+                if (updateData({ services: data.services })) {
+                    renderServices(data.services);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Eliminar servicio
+        function deleteService(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar este servicio?')) {
+                const data = getData();
+                data.services = data.services.filter(s => s.id !== id);
+                
+                if (updateData({ services: data.services })) {
+                    renderServices(data.services);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // ===== CLIENTES =====
+
+        // Renderizar lista de clientes
+        function renderClients(clients) {
+            const container = document.getElementById('clients-list');
+            const searchTerm = document.getElementById('client-search').value.toLowerCase();
+            
+            // Filtrar clientes según la búsqueda
+            const filteredClients = clients.filter(client => 
+                client.name.toLowerCase().includes(searchTerm) ||
+                client.phone.includes(searchTerm) ||
+                (client.email && client.email.toLowerCase().includes(searchTerm))
+            );
+            
+            if (filteredClients.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No hay clientes registrados</p>';
+                return;
+            }
+            
+            container.innerHTML = filteredClients.map(client => `
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <h4 class="font-medium">${client.name}</h4>
+                        <p class="text-sm text-gray-600">${client.phone} ${client.email ? `- ${client.email}` : ''}</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="edit-client p-2 text-blue-600 hover:text-blue-800" data-id="${client.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="delete-client p-2 text-red-600 hover:text-red-800" data-id="${client.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Agregar event listeners para los botones
+            document.querySelectorAll('.edit-client').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const clientId = parseInt(btn.dataset.id);
+                    const client = clients.find(c => c.id === clientId);
+                    showEditModal('client', client);
+                });
+            });
+            
+            document.querySelectorAll('.delete-client').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const clientId = parseInt(btn.dataset.id);
+                    deleteClient(clientId);
+                });
+            });
+        }
+
+        // Agregar cliente
+        function addClient(name, phone, email) {
+            const data = getData();
+            const newClient = {
+                id: generateId(data.clients),
+                name,
+                phone,
+                email: email || ''
+            };
+            
+            data.clients.push(newClient);
+            
+            if (updateData({ clients: data.clients })) {
+                renderClients(data.clients);
+                document.getElementById('client-form').reset();
+                return true;
+            }
+            return false;
+        }
+
+        // Editar cliente
+        function editClient(id, name, phone, email) {
+            const data = getData();
+            const clientIndex = data.clients.findIndex(c => c.id === id);
+            
+            if (clientIndex !== -1) {
+                data.clients[clientIndex] = {
+                    ...data.clients[clientIndex],
+                    name,
+                    phone,
+                    email: email || ''
+                };
+                
+                if (updateData({ clients: data.clients })) {
+                    renderClients(data.clients);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Eliminar cliente
+        function deleteClient(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar este cliente?')) {
+                const data = getData();
+                data.clients = data.clients.filter(c => c.id !== id);
+                
+                if (updateData({ clients: data.clients })) {
+                    renderClients(data.clients);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // ===== CITAS =====
+
+        // Renderizar calendario
+        function renderCalendar(appointments) {
+            const calendarContainer = document.getElementById('calendar');
+            const monthYearElement = document.getElementById('current-month');
+            
+            // Configurar fecha actual
+            const currentDate = new Date();
+            const currentMonth = appState.currentMonth;
+            const currentYear = appState.currentYear;
+            
+            // Actualizar título del mes
+            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            monthYearElement.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+            
+            // Obtener primer día del mes y último día del mes
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            
+            // Obtener día de la semana del primer día (0 = Domingo, 1 = Lunes, ...)
+            const firstDayOfWeek = firstDay.getDay();
+            
+            // Generar días del mes anterior (si es necesario)
+            let calendarHTML = '';
+            
+            // Encabezados de días de la semana
+            const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+            for (let i = 0; i < 7; i++) {
+                calendarHTML += `<div class="text-center text-sm font-medium py-2">${dayNames[i]}</div>`;
+            }
+            
+            // Días vacíos al inicio (del mes anterior)
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                calendarHTML += `<div class="text-center py-2 text-gray-300"></div>`;
+            }
+            
+            // Días del mes actual
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0];
+            
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayAppointments = appointments.filter(a => a.date === dateString);
+                const hasAppointments = dayAppointments.length > 0;
+                const isToday = dateString === todayString;
+                const isSelected = false; // Podría implementarse selección de día
+                
+                let dayClass = "calendar-day text-center py-2 rounded";
+                if (isToday) dayClass += " bg-blue-100 font-bold";
+                if (hasAppointments) dayClass += " has-appointments";
+                if (isSelected) dayClass += " selected";
+                
+                calendarHTML += `
+                    <div class="${dayClass}" data-date="${dateString}">
+                        ${day}
+                        ${hasAppointments ? '<div class="w-1 h-1 bg-blue-500 rounded-full mx-auto mt-1"></div>' : ''}
+                    </div>
+                `;
+            }
+            
+            calendarContainer.innerHTML = calendarHTML;
+            
+            // Agregar event listeners a los días
+            document.querySelectorAll('.calendar-day').forEach(day => {
+                day.addEventListener('click', () => {
+                    const date = day.dataset.date;
+                    document.getElementById('appointment-date').value = date;
+                    // También podríamos mostrar las citas de ese día específico
+                });
+            });
+        }
+
+        // Renderizar lista de citas
+        function renderAppointments(appointments, clients, services) {
+            const container = document.getElementById('appointments-list');
+            const titleElement = document.getElementById('appointments-day-title');
+            
+            // Obtener fecha actual
+            const today = new Date().toISOString().split('T')[0];
+            
+            // Filtrar citas de hoy
+            const todayAppointments = appointments.filter(a => a.date === today && a.status === 'scheduled');
+            
+            // Actualizar título
+            titleElement.textContent = `Citas de Hoy (${formatDate(today)})`;
+            
+            if (todayAppointments.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No hay citas programadas para hoy</p>';
+                return;
+            }
+            
+            // Ordenar citas por hora
+            todayAppointments.sort((a, b) => a.time.localeCompare(b.time));
+            
+            container.innerHTML = todayAppointments.map(appointment => {
+                const client = clients.find(c => c.id === appointment.clientId);
+                const service = services.find(s => s.id === appointment.serviceId);
+                
+                return `
+                    <div class="appointment-item p-3 bg-gray-50 rounded-lg">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-medium">${client.name}</h4>
+                                <p class="text-sm text-gray-600">${service.name} - ${appointment.time}</p>
+                                <p class="text-sm text-gray-600">Tel: ${client.phone}</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="complete-appointment p-2 text-green-600 hover:text-green-800" data-id="${appointment.id}">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="cancel-appointment p-2 text-red-600 hover:text-red-800" data-id="${appointment.id}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Agregar event listeners para los botones
+            document.querySelectorAll('.complete-appointment').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const appointmentId = parseInt(btn.dataset.id);
+                    completeAppointment(appointmentId);
+                });
+            });
+            
+            document.querySelectorAll('.cancel-appointment').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const appointmentId = parseInt(btn.dataset.id);
+                    cancelAppointment(appointmentId);
+                });
+            });
+        }
+
+        // Completar cita (marcar como realizada y registrar ingreso)
+        function completeAppointment(id) {
+            const data = getData();
+            const appointmentIndex = data.appointments.findIndex(a => a.id === id);
+            
+            if (appointmentIndex !== -1) {
+                const appointment = data.appointments[appointmentIndex];
+                const service = data.services.find(s => s.id === appointment.serviceId);
+                
+                // Cambiar estado de la cita
+                data.appointments[appointmentIndex].status = 'completed';
+                
+                // Registrar ingreso
+                const newIncome = {
+                    id: generateId(data.income),
+                    date: appointment.date,
+                    amount: service.price,
+                    serviceId: appointment.serviceId,
+                    clientId: appointment.clientId
+                };
+                
+                data.income.push(newIncome);
+                
+                if (updateData({ appointments: data.appointments, income: data.income })) {
+                    renderAppointments(data.appointments, data.clients, data.services);
+                    updateIncomeSummary(data.income);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Cancelar cita
+        function cancelAppointment(id) {
+            if (confirm('¿Estás seguro de que quieres cancelar esta cita?')) {
+                const data = getData();
+                const appointmentIndex = data.appointments.findIndex(a => a.id === id);
+                
+                if (appointmentIndex !== -1) {
+                    data.appointments[appointmentIndex].status = 'cancelled';
+                    
+                    if (updateData({ appointments: data.appointments })) {
+                        renderAppointments(data.appointments, data.clients, data.services);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // Programar cita
+        function scheduleAppointment(date, time, clientId, serviceId) {
+            const data = getData();
+            const newAppointment = {
+                id: generateId(data.appointments),
+                date,
+                time,
+                clientId: parseInt(clientId),
+                serviceId: parseInt(serviceId),
+                status: 'scheduled'
+            };
+            
+            data.appointments.push(newAppointment);
+            
+            if (updateData({ appointments: data.appointments })) {
+                renderCalendar(data.appointments);
+                renderAppointments(data.appointments, data.clients, data.services);
+                document.getElementById('appointment-form').reset();
+                return true;
+            }
+            return false;
+        }
+
+        // Llenar selects de clientes y servicios en el formulario de citas
+        function populateClientServiceSelects(clients, services) {
+            const clientSelect = document.getElementById('appointment-client');
+            const serviceSelect = document.getElementById('appointment-service');
+            
+            clientSelect.innerHTML = '<option value="">Seleccionar cliente</option>' +
+                clients.map(client => `<option value="${client.id}">${client.name}</option>`).join('');
+            
+            serviceSelect.innerHTML = '<option value="">Seleccionar servicio</option>' +
+                services.map(service => `<option value="${service.id}">${service.name} - $${service.price.toFixed(2)}</option>`).join('');
+        }
+
+        // ===== INGRESOS =====
+
+        // Actualizar resumen de ingresos
+        function updateIncomeSummary(income) {
+            const today = new Date().toISOString().split('T')[0];
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            const weekStart = oneWeekAgo.toISOString().split('T')[0];
+            
+            const monthStart = new Date(appState.currentYear, appState.currentMonth, 1)
+                .toISOString().split('T')[0];
+            
+            // Filtrar ingresos por período
+            const dailyIncome = income
+                .filter(i => i.date === today)
+                .reduce((sum, i) => sum + i.amount, 0);
+            
+            const weeklyIncome = income
+                .filter(i => i.date >= weekStart)
+                .reduce((sum, i) => sum + i.amount, 0);
+            
+            const monthlyIncome = income
+                .filter(i => {
+                    const incomeDate = new Date(i.date);
+                    return incomeDate.getMonth() === appState.currentMonth && 
+                           incomeDate.getFullYear() === appState.currentYear;
+                })
+                .reduce((sum, i) => sum + i.amount, 0);
+            
+            // Actualizar elementos del DOM
+            document.getElementById('daily-income').textContent = `$${dailyIncome.toFixed(2)}`;
+            document.getElementById('weekly-income').textContent = `$${weeklyIncome.toFixed(2)}`;
+            document.getElementById('monthly-income').textContent = `$${monthlyIncome.toFixed(2)}`;
+        }
+
+        // Renderizar gráfico de ingresos
+        function renderIncomeChart(income) {
+            const container = document.getElementById('income-chart');
+            
+            // Obtener ingresos de los últimos 7 días
+            const last7Days = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                last7Days.push(date.toISOString().split('T')[0]);
+            }
+            
+            // Calcular ingresos por día
+            const dailyIncome = last7Days.map(date => {
+                return income
+                    .filter(i => i.date === date)
+                    .reduce((sum, i) => sum + i.amount, 0);
+            });
+            
+            // Encontrar el valor máximo para escalar el gráfico
+            const maxIncome = Math.max(...dailyIncome, 1); // Mínimo 1 para evitar división por cero
+            
+            // Generar barras del gráfico
+            container.innerHTML = dailyIncome.map((amount, index) => {
+                const height = (amount / maxIncome) * 150; // 150px es la altura máxima
+                const dayName = new Date(last7Days[index]).toLocaleDateString('es', { weekday: 'short' });
+                
+                return `
+                    <div class="flex flex-col items-center">
+                        <div class="chart-bar rounded-t" style="height: ${height}px"></div>
+                        <div class="text-xs mt-1">${dayName}</div>
+                        <div class="text-xs font-medium">$${amount.toFixed(0)}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Renderizar historial de ingresos
+        function renderIncomeHistory(income, services, clients) {
+            const container = document.getElementById('income-history');
+            const startDate = document.getElementById('income-start-date').value;
+            const endDate = document.getElementById('income-end-date').value;
+            
+            // Filtrar ingresos por fecha si se especifican filtros
+            let filteredIncome = [...income];
+            if (startDate) {
+                filteredIncome = filteredIncome.filter(i => i.date >= startDate);
+            }
+            if (endDate) {
+                filteredIncome = filteredIncome.filter(i => i.date <= endDate);
+            }
+            
+            // Ordenar por fecha (más reciente primero)
+            filteredIncome.sort((a, b) => b.date.localeCompare(a.date));
+            
+            if (filteredIncome.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No hay registros de ingresos</p>';
+                return;
+            }
+            
+            container.innerHTML = filteredIncome.map(record => {
+                const service = services.find(s => s.id === record.serviceId);
+                const client = clients.find(c => c.id === record.clientId);
+                
+                return `
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <div>
+                            <h4 class="font-medium">${service.name}</h4>
+                            <p class="text-sm text-gray-600">${client.name} - ${formatDate(record.date)}</p>
+                        </div>
+                        <div class="font-bold text-green-600">
+                            $${record.amount.toFixed(2)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ===== INVENTARIO =====
+
+        // Renderizar alertas de inventario
+        function renderInventoryAlerts(inventory) {
+            const container = document.getElementById('alerts-list');
+            
+            // Encontrar productos con stock bajo
+            const lowStockItems = inventory.filter(item => item.quantity <= item.minimum);
+            
+            if (lowStockItems.length === 0) {
+                container.innerHTML = '<p class="text-green-700">No hay alertas de inventario</p>';
+                return;
+            }
+            
+            container.innerHTML = lowStockItems.map(item => `
+                <div class="flex justify-between items-center mb-2 last:mb-0">
+                    <span>${item.name} - Stock bajo (${item.quantity} unidades)</span>
+                    <button class="restock-item p-1 text-blue-600 hover:text-blue-800" data-id="${item.id}">
+                        <i class="fas fa-plus-circle"></i>
+                    </button>
+                </div>
+            `).join('');
+            
+            // Agregar event listeners para los botones de reabastecer
+            document.querySelectorAll('.restock-item').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const itemId = parseInt(btn.dataset.id);
+                    const newQuantity = prompt('Ingrese la nueva cantidad:');
+                    if (newQuantity && !isNaN(newQuantity)) {
+                        updateInventoryQuantity(itemId, parseInt(newQuantity));
+                    }
+                });
+            });
+        }
+
+        // Renderizar lista de inventario
+        function renderInventory(inventory) {
+            const container = document.getElementById('inventory-list');
+            
+            if (inventory.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No hay productos en inventario</p>';
+                return;
+            }
+            
+            container.innerHTML = inventory.map(item => {
+                const isLowStock = item.quantity <= item.minimum;
+                const itemClass = isLowStock ? "low-stock p-3 rounded-lg" : "p-3 bg-gray-50 rounded-lg";
+                
+                return `
+                    <div class="${itemClass}">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="font-medium">${item.name}</h4>
+                                <p class="text-sm text-gray-600">Stock: ${item.quantity} | Mínimo: ${item.minimum}</p>
+                                <p class="text-sm text-gray-600">Precio: $${item.price.toFixed(2)}</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="edit-inventory p-2 text-blue-600 hover:text-blue-800" data-id="${item.id}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="delete-inventory p-2 text-red-600 hover:text-red-800" data-id="${item.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Agregar event listeners para los botones
+            document.querySelectorAll('.edit-inventory').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const itemId = parseInt(btn.dataset.id);
+                    const item = inventory.find(i => i.id === itemId);
+                    showEditModal('inventory', item);
+                });
+            });
+            
+            document.querySelectorAll('.delete-inventory').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const itemId = parseInt(btn.dataset.id);
+                    deleteInventoryItem(itemId);
+                });
+            });
+        }
+
+        // Agregar producto al inventario
+        function addInventoryItem(name, quantity, minimum, price) {
+            const data = getData();
+            const newItem = {
+                id: generateId(data.inventory),
+                name,
+                quantity: parseInt(quantity),
+                minimum: parseInt(minimum),
+                price: parseFloat(price)
+            };
+            
+            data.inventory.push(newItem);
+            
+            if (updateData({ inventory: data.inventory })) {
+                renderInventoryAlerts(data.inventory);
+                renderInventory(data.inventory);
+                document.getElementById('inventory-form').reset();
+                return true;
+            }
+            return false;
+        }
+
+        // Editar producto del inventario
+        function editInventoryItem(id, name, quantity, minimum, price) {
+            const data = getData();
+            const itemIndex = data.inventory.findIndex(i => i.id === id);
+            
+            if (itemIndex !== -1) {
+                data.inventory[itemIndex] = {
+                    ...data.inventory[itemIndex],
+                    name,
+                    quantity: parseInt(quantity),
+                    minimum: parseInt(minimum),
+                    price: parseFloat(price)
+                };
+                
+                if (updateData({ inventory: data.inventory })) {
+                    renderInventoryAlerts(data.inventory);
+                    renderInventory(data.inventory);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Eliminar producto del inventario
+        function deleteInventoryItem(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar este producto del inventario?')) {
+                const data = getData();
+                data.inventory = data.inventory.filter(i => i.id !== id);
+                
+                if (updateData({ inventory: data.inventory })) {
+                    renderInventoryAlerts(data.inventory);
+                    renderInventory(data.inventory);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Actualizar cantidad de producto en inventario
+        function updateInventoryQuantity(id, newQuantity) {
+            const data = getData();
+            const itemIndex = data.inventory.findIndex(i => i.id === id);
+            
+            if (itemIndex !== -1) {
+                data.inventory[itemIndex].quantity = parseInt(newQuantity);
+                
+                if (updateData({ inventory: data.inventory })) {
+                    renderInventoryAlerts(data.inventory);
+                    renderInventory(data.inventory);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // ========== FUNCIONES UTILITARIAS ==========
+
+        // Formatear fecha para mostrar
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Actualizar fecha actual en el encabezado
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('current-date').textContent = now.toLocaleDateString('es-ES', options);
+        }
+
+        // ========== INICIALIZACIÓN ==========
+
+        // Inicializar la aplicación
+        function initApp() {
+            // Cargar datos
+            const data = getData();
+            
+            // Actualizar fecha actual
+            updateCurrentDate();
+            
+            // Configurar event listeners para las pestañas
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    switchTab(btn.dataset.tab);
+                });
+            });
+            
+            // Configurar formulario de servicios
+            document.getElementById('service-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('service-name').value;
+                const price = document.getElementById('service-price').value;
+                const duration = document.getElementById('service-duration').value;
+                
+                if (addService(name, price, duration)) {
+                    // Éxito - el formulario se resetea dentro de la función
+                } else {
+                    alert('Error al agregar el servicio');
+                }
+            });
+            
+            // Configurar formulario de clientes
+            document.getElementById('client-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('client-name').value;
+                const phone = document.getElementById('client-phone').value;
+                const email = document.getElementById('client-email').value;
+                
+                if (addClient(name, phone, email)) {
+                    // Éxito - el formulario se resetea dentro de la función
+                } else {
+                    alert('Error al agregar el cliente');
+                }
+            });
+            
+            // Configurar búsqueda de clientes
+            document.getElementById('client-search').addEventListener('input', () => {
+                const data = getData();
+                renderClients(data.clients);
+            });
+            
+            // Configurar navegación del calendario
+            document.getElementById('prev-month').addEventListener('click', () => {
+                if (appState.currentMonth === 0) {
+                    appState.currentMonth = 11;
+                    appState.currentYear--;
+                } else {
+                    appState.currentMonth--;
+                }
+                const data = getData();
+                renderCalendar(data.appointments);
+            });
+            
+            document.getElementById('next-month').addEventListener('click', () => {
+                if (appState.currentMonth === 11) {
+                    appState.currentMonth = 0;
+                    appState.currentYear++;
+                } else {
+                    appState.currentMonth++;
+                }
+                const data = getData();
+                renderCalendar(data.appointments);
+            });
+            
+            // Configurar formulario de citas
+            document.getElementById('appointment-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const date = document.getElementById('appointment-date').value;
+                const time = document.getElementById('appointment-time').value;
+                const clientId = document.getElementById('appointment-client').value;
+                const serviceId = document.getElementById('appointment-service').value;
+                
+                if (!date || !time || !clientId || !serviceId) {
+                    alert('Por favor, complete todos los campos');
+                    return;
+                }
+                
+                if (scheduleAppointment(date, time, clientId, serviceId)) {
+                    // Éxito - el formulario se resetea dentro de la función
+                } else {
+                    alert('Error al programar la cita');
+                }
+            });
+            
+            // Configurar filtro de ingresos
+            document.getElementById('filter-income').addEventListener('click', () => {
+                const data = getData();
+                renderIncomeHistory(data.income, data.services, data.clients);
+            });
+            
+            // Configurar formulario de inventario
+            document.getElementById('inventory-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('product-name').value;
+                const quantity = document.getElementById('product-quantity').value;
+                const minimum = document.getElementById('product-minimum').value;
+                const price = document.getElementById('product-price').value;
+                
+                if (addInventoryItem(name, quantity, minimum, price)) {
+                    // Éxito - el formulario se resetea dentro de la función
+                } else {
+                    alert('Error al agregar el producto');
+                }
+            });
+            
+            // Configurar modal de edición
+            document.getElementById('modal-cancel').addEventListener('click', hideEditModal);
+            document.getElementById('modal-save').addEventListener('click', () => {
+                const { editingType, editingItem } = appState;
+                
+                if (!editingItem) return;
+                
+                let success = false;
+                
+                switch(editingType) {
+                    case 'service':
+                        const serviceName = document.getElementById('edit-service-name').value;
+                        const servicePrice = document.getElementById('edit-service-price').value;
+                        const serviceDuration = document.getElementById('edit-service-duration').value;
+                        success = editService(editingItem.id, serviceName, servicePrice, serviceDuration);
+                        break;
+                    case 'client':
+                        const clientName = document.getElementById('edit-client-name').value;
+                        const clientPhone = document.getElementById('edit-client-phone').value;
+                        const clientEmail = document.getElementById('edit-client-email').value;
+                        success = editClient(editingItem.id, clientName, clientPhone, clientEmail);
+                        break;
+                    case 'inventory':
+                        const productName = document.getElementById('edit-product-name').value;
+                        const productQuantity = document.getElementById('edit-product-quantity').value;
+                        const productMinimum = document.getElementById('edit-product-minimum').value;
+                        const productPrice = document.getElementById('edit-product-price').value;
+                        success = editInventoryItem(editingItem.id, productName, productQuantity, productMinimum, productPrice);
+                        break;
+                }
+                
+                if (success) {
+                    hideEditModal();
+                } else {
+                    alert('Error al guardar los cambios');
+                }
+            });
+            
+            // Inicializar la primera pestaña
+            switchTab('services');
+        }
+
+        // Ejecutar inicialización cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
