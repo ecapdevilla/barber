@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promociones - BarberApp</title>
+    <style>
+        :root {
+            --primary: #ffd700;
+            --dark: #1a1a1a;
+            --darker: #2d2d2d;
+            --text: #ffffff;
+            --text-secondary: #cccccc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .app-container {
+            max-width: 100%;
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--darker);
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .app-header h1 {
+            font-size: 22px;
+            background: linear-gradient(45deg, var(--primary), #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--dark);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: var(--text);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        /* FORM SECTION */
+        .form-section {
+            background: var(--darker);
+            padding: 20px 15px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .form-section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            color: var(--text);
+            font-size: 16px;
+        }
+
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        /* PROMOTIONS GRID */
+        .promotions-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .promotion-card {
+            background: var(--darker);
+            padding: 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .promotion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .promotion-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .promotion-status {
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+
+        .status-inactive {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+
+        .promotion-message {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .promotion-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-send {
+            background: #25D366;
+            color: white;
+        }
+
+        .btn-edit {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        /* CLIENTS SELECTION */
+        .clients-selection {
+            background: var(--darker);
+            padding: 20px 15px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .clients-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .client-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .client-checkbox:last-child {
+            border-bottom: none;
+        }
+
+        .client-checkbox input {
+            margin-right: 10px;
+        }
+
+        .client-info {
+            flex: 1;
+        }
+
+        .client-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .client-whatsapp {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        @media (min-width: 768px) {
+            .app-container {
+                max-width: 700px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+
+            .promotion-actions {
+                gap: 10px;
+            }
+
+            .action-btn {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-header">
+            <h1>🎯 Promociones</h1>
+            <div class="nav-buttons">
+                <a href="index.html" class="btn btn-secondary">🏠</a>
+                <a href="clientes.html" class="btn btn-primary">👥</a>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>➕ Crear Promoción</h2>
+            <form id="promocionForm">
+                <div class="form-group">
+                    <label for="nombrePromocion">Nombre de la Promoción *</label>
+                    <input type="text" id="nombrePromocion" required placeholder="Ej: 2do Corte 50%">
+                </div>
+                <div class="form-group">
+                    <label for="mensajePromocion">Mensaje *</label>
+                    <textarea id="mensajePromocion" required placeholder="Escribe el mensaje que se enviará... Usa {nombre} para personalizar"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="estadoPromocion">Estado</label>
+                    <select id="estadoPromocion">
+                        <option value="activa">Activa</option>
+                        <option value="inactiva">Inactiva</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    💾 Guardar Promoción
+                </button>
+            </form>
+        </div>
+
+        <div class="clients-selection">
+            <h2 style="font-size: 18px; margin-bottom: 15px; color: var(--primary);">👥 Seleccionar Clientes</h2>
+            <div class="form-group">
+                <input type="text" id="clienteSearch" placeholder="🔍 Buscar cliente..." onkeyup="filtrarClientes()">
+            </div>
+            <div class="clients-list" id="clientsList">
+                <!-- Los clientes se cargarán aquí -->
+            </div>
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="seleccionarTodos()" style="flex: 1;">
+                    ✅ Seleccionar Todos
+                </button>
+                <button class="btn btn-secondary" onclick="deseleccionarTodos()" style="flex: 1;">
+                    ❌ Limpiar
+                </button>
+            </div>
+        </div>
+
+        <div>
+            <h2 style="font-size: 18px; margin-bottom: 15px; color: var(--primary);">📢 Promociones Activas</h2>
+            <div class="promotions-grid" id="promotionsGrid">
+                <!-- Las promociones se cargarán aquí -->
+            </div>
+        </div>
+    </div>
+
+    <script src="data-manager.js"></script>
+    <script>
+        let promocionEditando = null;
+        let clientesSeleccionados = new Set();
+
+        function cargarPromociones() {
+            cargarClientesLista();
+            mostrarPromociones();
+        }
+
+        function cargarClientesLista() {
+            const clientes = dataManager.getClientes().filter(c => c.whatsapp);
+            const container = document.getElementById('clientsList');
+            
+            if (clientes.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>No hay clientes con WhatsApp</p></div>';
+                return;
+            }
+
+            container.innerHTML = clientes.map(cliente => `
+                <div class="client-checkbox">
+                    <input type="checkbox" id="cliente-${cliente.id}" onchange="toggleCliente(${cliente.id})">
+                    <div class="client-info">
+                        <div class="client-name">${cliente.nombre}</div>
+                        <div class="client-whatsapp">${cliente.whatsapp}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filtrarClientes() {
+            const searchTerm = document.getElementById('clienteSearch').value.toLowerCase();
+            const clientes = dataManager.getClientes().filter(c => c.whatsapp);
+            const container = document.getElementById('clientsList');
+            
+            const filtered = clientes.filter(cliente => 
+                cliente.nombre.toLowerCase().includes(searchTerm) ||
+                cliente.whatsapp.includes(searchTerm)
+            );
+
+            container.innerHTML = filtered.map(cliente => `
+                <div class="client-checkbox">
+                    <input type="checkbox" id="cliente-${cliente.id}" onchange="toggleCliente(${cliente.id})" ${clientesSeleccionados.has(cliente.id) ? 'checked' : ''}>
+                    <div class="client-info">
+                        <div class="client-name">${cliente.nombre}</div>
+                        <div class="client-whatsapp">${cliente.whatsapp}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleCliente(clienteId) {
+            const checkbox = document.getElementById(`cliente-${clienteId}`);
+            if (checkbox.checked) {
+                clientesSeleccionados.add(clienteId);
+            } else {
+                clientesSeleccionados.delete(clienteId);
+            }
+        }
+
+        function seleccionarTodos() {
+            const clientes = dataManager.getClientes().filter(c => c.whatsapp);
+            clientesSeleccionados = new Set(clientes.map(c => c.id));
+            
+            clientes.forEach(cliente => {
+                const checkbox = document.getElementById(`cliente-${cliente.id}`);
+                if (checkbox) checkbox.checked = true;
+            });
+        }
+
+        function deseleccionarTodos() {
+            clientesSeleccionados.clear();
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+
+        function mostrarPromociones() {
+            const promociones = dataManager.getPromociones();
+            const grid = document.getElementById('promotionsGrid');
+            
+            if (promociones.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><div class="icon">🎯</div><h3>No hay promociones</h3><p>Crea tu primera promoción</p></div>';
+                return;
+            }
+
+            grid.innerHTML = promociones.map(promocion => `
+                <div class="promotion-card">
+                    <div class="promotion-header">
+                        <div class="promotion-name">${promocion.nombre}</div>
+                        <div class="promotion-status status-${promocion.activa ? 'active' : 'inactive'}">
+                            ${promocion.activa ? 'Activa' : 'Inactiva'}
+                        </div>
+                    </div>
+                    <div class="promotion-message">${promocion.mensaje}</div>
+                    <div class="promotion-actions">
+                        <button class="action-btn btn-send" onclick="enviarPromocion(${promocion.id})">
+                            📤 Enviar
+                        </button>
+                        <button class="action-btn btn-edit" onclick="editarPromocion(${promocion.id})">
+                            ✏️ Editar
+                        </button>
+                        <button class="action-btn btn-delete" onclick="eliminarPromocion(${promocion.id})">
+                            🗑️ Eliminar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('promocionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const promocion = {
+                nombre: document.getElementById('nombrePromocion').value,
+                mensaje: document.getElementById('mensajePromocion').value,
+                activa: document.getElementById('estadoPromocion').value === 'activa'
+            };
+
+            if (promocionEditando) {
+                // Modo edición
+                if (dataManager.updatePromocion(promocionEditando, promocion)) {
+                    alert('✅ Promoción actualizada');
+                    promocionEditando = null;
+                    document.querySelector('#promocionForm button').textContent = '💾 Guardar Promoción';
+                }
+            } else {
+                // Modo nuevo
+                dataManager.addPromocion(promocion);
+                alert('✅ Promoción creada');
+            }
+
+            this.reset();
+            document.getElementById('estadoPromocion').value = 'activa';
+            mostrarPromociones();
+        });
+
+        function editarPromocion(id) {
+            const promocion = dataManager.getPromociones().find(p => p.id === id);
+            if (promocion) {
+                document.getElementById('nombrePromocion').value = promocion.nombre;
+                document.getElementById('mensajePromocion').value = promocion.mensaje;
+                document.getElementById('estadoPromocion').value = promocion.activa ? 'activa' : 'inactiva';
+                
+                promocionEditando = id;
+                document.querySelector('#promocionForm button').textContent = '💾 Actualizar Promoción';
+                
+                document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function eliminarPromocion(id) {
+            if (confirm('¿Eliminar esta promoción?')) {
+                const data = dataManager.getData();
+                data.promociones = data.promociones.filter(p => p.id !== id);
+                dataManager.saveData(data);
+                mostrarPromociones();
+                alert('✅ Promoción eliminada');
+            }
+        }
+
+        function enviarPromocion(promocionId) {
+            if (clientesSeleccionados.size === 0) {
+                alert('❌ Selecciona al menos un cliente');
+                return;
+            }
+
+            const promocion = dataManager.getPromociones().find(p => p.id === promocionId);
+            const clientes = dataManager.getClientes();
+            let enviados = 0;
+
+            clientesSeleccionados.forEach(clienteId => {
+                const cliente = clientes.find(c => c.id === clienteId);
+                if (cliente && cliente.whatsapp) {
+                    const mensaje = promocion.mensaje.replace(/{nombre}/g, cliente.nombre);
+                    const url = `https://wa.me/${cliente.whatsapp}?text=${encodeURIComponent(mensaje)}`;
+                    window.open(url, '_blank');
+                    enviados++;
+                }
+            });
+
+            alert(`📤 ${enviados} mensajes enviados`);
+        }
+
+        document.addEventListener('DOMContentLoaded', cargarPromociones);
+    </script>
+</body>
+</html>
