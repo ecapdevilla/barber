@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citas - BarberApp</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+
+        .header h1 {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #ffd700;
+            color: #1a1a1a;
+        }
+
+        .btn-primary:hover {
+            background: #ffed4e;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .appointment-section {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .form-container, .calendar-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .client-search {
+            position: relative;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #2d2d2d;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .search-result-item:hover {
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .calendar-day:hover {
+            border-color: #ffd700;
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+        }
+
+        .calendar-day.today {
+            background: rgba(255, 215, 0, 0.3);
+        }
+
+        .calendar-day.has-appointments {
+            border-color: #3498db;
+        }
+
+        .day-number {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .appointment-dot {
+            width: 6px;
+            height: 6px;
+            background: #3498db;
+            border-radius: 50%;
+            margin: 1px;
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .time-slot {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .time-slot.selected {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .time-slot.booked {
+            background: rgba(231, 76, 60, 0.3);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .appointments-list {
+            margin-top: 30px;
+        }
+
+        .appointment-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffd700;
+        }
+
+        .appointment-item.pending { border-left-color: #f39c12; }
+        .appointment-item.confirmed { border-left-color: #27ae60; }
+        .appointment-item.completed { border-left-color: #3498db; }
+        .appointment-item.cancelled { border-left-color: #e74c3c; }
+
+        .appointment-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        .btn-confirm { background: #27ae60; color: white; }
+        .btn-complete { background: #3498db; color: white; }
+        .btn-cancel { background: #e74c3c; color: white; }
+
+        @media (max-width: 768px) {
+            .appointment-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .time-slots {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .calendar-grid {
+                gap: 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 Agendamiento de Citas</h1>
+            <div class="nav-buttons">
+                <a href="index.html" class="btn btn-secondary">🏠 Dashboard</a>
+                <a href="servicios.html" class="btn btn-primary">✂️ Servicios</a>
+            </div>
+        </div>
+
+        <div class="appointment-section">
+            <div class="form-container">
+                <h2 style="margin-bottom: 20px; color: #ffd700;">➕ Nueva Cita</h2>
+                
+                <div class="form-group client-search">
+                    <label for="clienteSearch">Buscar Cliente *</label>
+                    <input type="text" id="clienteSearch" placeholder="🔍 Escribe el nombre del cliente...">
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="servicioCita">Servicio *</label>
+                    <select id="servicioCita">
+                        <option value="">Seleccionar servicio</option>
+                        <!-- Los servicios se cargarán aquí -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="fechaCita">Fecha *</label>
+                    <input type="date" id="fechaCita" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="horaCita">Hora *</label>
+                    <select id="horaCita">
+                        <!-- Las horas se generarán aquí -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="barberoCita">Barbero</label>
+                    <input type="text" id="barberoCita" placeholder="Nombre del barbero">
+                </div>
+
+                <div class="form-group">
+                    <label for="notasCita">Notas</label>
+                    <input type="text" id="notasCita" placeholder="Notas adicionales...">
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; padding: 15px;" onclick="agendarCita()">
+                    📅 Agendar Cita
+                </button>
+            </div>
+
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <h2 id="currentMonth" style="color: #ffd700;">Enero 2024</h2>
+                    <div class="calendar-nav">
+                        <button class="btn btn-secondary" onclick="cambiarMes(-1)">‹</button>
+                        <button class="btn btn-secondary" onclick="hoy()">Hoy</button>
+                        <button class="btn btn-secondary" onclick="cambiarMes(1)">›</button>
+                    </div>
+                </div>
+
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- El calendario se generará aquí -->
+                </div>
+
+                <div class="appointments-list">
+                    <h3 style="margin-bottom: 15px; color: #ffd700;">📋 Citas de Hoy</h3>
+                    <div id="citasHoy">
+                        <!-- Las citas de hoy se cargarán aquí -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="data-manager.js"></script>
+    <script>
+        let fechaSeleccionada = new Date();
+        let clienteSeleccionado = null;
+
+        function cargarCitas() {
+            generarCalendario();
+            cargarServiciosSelect();
+            generarHorasDisponibles();
+            cargarCitasHoy();
+        }
+
+        function generarCalendario() {
+            const calendarGrid = document.getElementById('calendarGrid');
+            const currentMonth = document.getElementById('currentMonth');
+            
+            // Configurar mes actual
+            const year = fechaSeleccionada.getFullYear();
+            const month = fechaSeleccionada.getMonth();
+            
+            currentMonth.textContent = fechaSeleccionada.toLocaleDateString('es-CO', { 
+                month: 'long', 
+                year: 'numeric' 
+            }).toUpperCase();
+            
+            // Días de la semana
+            const daysHeader = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
+            calendarGrid.innerHTML = daysHeader.map(day => 
+                `<div class="calendar-day-header">${day}</div>`
+            ).join('');
+            
+            // Primer día del mes
+            const firstDay = new Date(year, month, 1);
+            // Último día del mes
+            const lastDay = new Date(year, month + 1, 0);
+            // Día de la semana del primer día (0 = Domingo)
+            const startDay = firstDay.getDay();
+            
+            // Obtener citas del mes
+            const citasMes = dataManager.getCitas().filter(cita => {
+                const citaDate = new Date(cita.fecha);
+                return citaDate.getMonth() === month && citaDate.getFullYear() === year;
+            });
+            
+            // Generar días
+            let html = '';
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Días del mes anterior
+            for (let i = startDay; i > 0; i--) {
+                const prevDate = new Date(year, month, -i + 1);
+                html += `<div class="calendar-day other-month">${prevDate.getDate()}</div>`;
+            }
+            
+            // Días del mes actual
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const currentDate = new Date(year, month, day);
+                const dateStr = currentDate.toISOString().split('T')[0];
+                const citasDia = citasMes.filter(c => c.fecha === dateStr);
+                const isToday = currentDate.getTime() === today.getTime();
+                const hasAppointments = citasDia.length > 0;
+                
+                html += `
+                    <div class="calendar-day ${isToday ? 'today' : ''} ${hasAppointments ? 'has-appointments' : ''}" 
+                         onclick="seleccionarFecha('${dateStr}')">
+                        <div class="day-number">${day}</div>
+                        ${hasAppointments ? `<div class="appointment-dot"></div>` : ''}
+                    </div>
+                `;
+            }
+            
+            // Días del siguiente mes
+            const totalCells = 42; // 6 semanas
+            const remainingCells = totalCells - (startDay + lastDay.getDate());
+            for (let day = 1; day <= remainingCells; day++) {
+                html += `<div class="calendar-day other-month">${day}</div>`;
+            }
+            
+            calendarGrid.innerHTML += html;
+        }
+
+        function cambiarMes(delta) {
+            fechaSeleccionada.setMonth(fechaSeleccionada.getMonth() + delta);
+            generarCalendario();
+            generarHorasDisponibles();
+        }
+
+        function hoy() {
+            fechaSeleccionada = new Date();
+            generarCalendario();
+            generarHorasDisponibles();
+        }
+
+        function seleccionarFecha(fecha) {
+            document.getElementById('fechaCita').value = fecha;
+            generarHorasDisponibles();
+        }
+
+        function cargarServiciosSelect() {
+            const select = document.getElementById('servicioCita');
+            const servicios = dataManager.getServicios().filter(s => s.activo);
+            
+            select.innerHTML = '<option value="">Seleccionar servicio</option>' +
+                servicios.map(servicio => `
+                    <option value="${servicio.id}">${servicio.nombre} - ${dataManager.formatCurrency(servicio.precio)}</option>
+                `).join('');
+        }
+
+        function generarHorasDisponibles() {
+            const select = document.getElementById('horaCita');
+            const fecha = document.getElementById('fechaCita').value;
+            const citasDelDia = dataManager.getCitas().filter(c => c.fecha === fecha && c.estado !== 'cancelada');
+            
+            // Horarios disponibles (9:00 AM - 7:00 PM)
+            const horas = [];
+            for (let hora = 9; hora <= 19; hora++) {
+                for (let minuto = 0; minuto < 60; minuto += 30) {
+                    const horaStr = `${hora.toString().padStart(2, '0')}:${minuto.toString().padStart(2, '0')}`;
+                    const estaOcupada = citasDelDia.some(c => c.hora === horaStr);
+                    
+                    horas.push({
+                        hora: horaStr,
+                        disponible: !estaOcupada
+                    });
+                }
+            }
+            
+            select.innerHTML = horas.map(({hora, disponible}) => `
+                <option value="${hora}" ${!disponible ? 'disabled' : ''}>
+                    ${hora} ${!disponible ? '(Ocupado)' : ''}
+                </option>
+            `).join('');
+        }
+
+        // Búsqueda de clientes
+        document.getElementById('clienteSearch').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            const results = document.getElementById('searchResults');
+            const clientes = dataManager.getClientes();
+            
+            if (query.length < 2) {
+                results.style.display = 'none';
+                return;
+            }
+            
+            const filtered = clientes.filter(cliente => 
+                cliente.nombre.toLowerCase().includes(query)
+            );
+            
+            if (filtered.length > 0) {
+                results.innerHTML = filtered.map(cliente => `
+                    <div class="search-result-item" onclick="seleccionarCliente(${cliente.id})">
+                        <strong>${cliente.nombre}</strong><br>
+                        <small>${cliente.whatsapp}</small>
+                    </div>
+                `).join('');
+                results.style.display = 'block';
+            } else {
+                results.style.display = 'none';
+            }
+        });
+
+        function seleccionarCliente(clienteId) {
+            const cliente = dataManager.getClientes().find(c => c.id === clienteId);
+            clienteSeleccionado = cliente;
+            
+            document.getElementById('clienteSearch').value = cliente.nombre;
+            document.getElementById('searchResults').style.display = 'none';
+        }
+
+        function agendarCita() {
+            if (!clienteSeleccionado) {
+                alert('❌ Debes seleccionar un cliente');
+                return;
+            }
+
+            const servicioId = document.getElementById('servicioCita').value;
+            const fecha = document.getElementById('fechaCita').value;
+            const hora = document.getElementById('horaCita').value;
+
+            if (!servicioId || !fecha || !hora) {
+                alert('❌ Completa todos los campos obligatorios');
+                return;
+            }
+
+            const cita = {
+                clienteId: clienteSeleccionado.id,
+                servicioId: parseInt(servicioId),
+                fecha: fecha,
+                hora: hora,
+                barbero: document.getElementById('barberoCita').value || 'No asignado',
+                notas: document.getElementById('notasCita').value
+            };
+
+            dataManager.addCita(cita);
+            
+            // Limpiar formulario
+            clienteSeleccionado = null;
+            document.getElementById('clienteSearch').value = '';
+            document.getElementById('servicioCita').value = '';
+            document.getElementById('barberoCita').value = '';
+            document.getElementById('notasCita').value = '';
+            
+            // Recargar
+            generarCalendario();
+            generarHorasDisponibles();
+            cargarCitasHoy();
+            
+            alert('✅ Cita agendada exitosamente');
+        }
+
+        function cargarCitasHoy() {
+            const hoy = new Date().toISOString().split('T')[0];
+            const citasHoy = dataManager.getCitas().filter(c => c.fecha === hoy && c.estado !== 'cancelada');
+            const clientes = dataManager.getClientes();
+            const servicios = dataManager.getServicios();
+            
+            const container = document.getElementById('citasHoy');
+            
+            if (citasHoy.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #ccc;">No hay citas para hoy</div>';
+                return;
+            }
+            
+            container.innerHTML = citasHoy.map(cita => {
+                const cliente = clientes.find(c => c.id === cita.clienteId);
+                const servicio = servicios.find(s => s.id === cita.servicioId);
+                
+                return `
+                    <div class="appointment-item ${cita.estado || 'pending'}">
+                        <strong>${cliente ? cliente.nombre : 'Cliente no encontrado'}</strong>
+                        <div>${servicio ? servicio.nombre : 'Servicio no encontrado'} - ${cita.hora}</div>
+                        <div><small>Barbero: ${cita.barbero}</small></div>
+                        ${cita.notas ? `<div><small>Notas: ${cita.notas}</small></div>` : ''}
+                        <div class="appointment-actions">
+                            <button class="action-btn btn-confirm" onclick="cambiarEstadoCita(${cita.id}, 'confirmed')">
+                                ✅ Confirmar
+                            </button>
+                            <button class="action-btn btn-complete" onclick="cambiarEstadoCita(${cita.id}, 'completed')">
+                                ✓ Completar
+                            </button>
+                            <button class="action-btn btn-cancel" onclick="cambiarEstadoCita(${cita.id}, 'cancelled')">
+                                ❌ Cancelar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function cambiarEstadoCita(citaId, nuevoEstado) {
+            const data = dataManager.getData();
+            const cita = data.citas.find(c => c.id === citaId);
+            
+            if (cita) {
+                cita.estado = nuevoEstado;
+                dataManager.saveData(data);
+                cargarCitasHoy();
+                generarCalendario();
+                alert(`✅ Cita ${nuevoEstado}`);
+            }
+        }
+
+        // Configurar fecha mínima como hoy
+        document.addEventListener('DOMContentLoaded', function() {
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('fechaCita').min = hoy;
+            document.getElementById('fechaCita').value = hoy;
+            
+            cargarCitas();
+        });
+    </script>
+</body>
+</html>

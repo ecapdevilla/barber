@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - BarberApp</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+
+        .header h1 {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #ffd700;
+            color: #1a1a1a;
+        }
+
+        .btn-primary:hover {
+            background: #ffed4e;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-warning {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .inventory-section {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .form-container, .inventory-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #ccc;
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: #ffd700;
+            color: #1a1a1a;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+
+        .stock-low {
+            background: rgba(231, 76, 60, 0.2);
+        }
+
+        .stock-out {
+            background: rgba(231, 76, 60, 0.4);
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .btn-edit {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-restock {
+            background: #27ae60;
+            color: white;
+        }
+
+        .stock-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .stock-high { background: #27ae60; }
+        .stock-medium { background: #f39c12; }
+        .stock-low-ind { background: #e74c3c; }
+
+        @media (max-width: 768px) {
+            .inventory-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📦 Gestión de Inventario</h1>
+            <div class="nav-buttons">
+                <a href="index.html" class="btn btn-secondary">🏠 Dashboard</a>
+                <a href="ventas.html" class="btn btn-primary">🛍️ Ventas</a>
+            </div>
+        </div>
+
+        <div class="inventory-section">
+            <div class="form-container">
+                <h2 style="margin-bottom: 20px; color: #ffd700;">➕ Agregar Producto</h2>
+                <form id="productoForm">
+                    <div class="form-group">
+                        <label for="nombre">Nombre del Producto *</label>
+                        <input type="text" id="nombre" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categoria">Categoría *</label>
+                        <select id="categoria" required>
+                            <option value="">Seleccionar categoría</option>
+                            <option value="cosmeticos">Cosméticos</option>
+                            <option value="herramientas">Herramientas</option>
+                            <option value="accesorios">Accesorios</option>
+                            <option value="otros">Otros</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="precioCompra">Precio de Compra *</label>
+                        <input type="number" id="precioCompra" required min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="precioVenta">Precio de Venta *</label>
+                        <input type="number" id="precioVenta" required min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stock">Stock Inicial *</label>
+                        <input type="number" id="stock" required min="0" value="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stockMinimo">Stock Mínimo *</label>
+                        <input type="number" id="stockMinimo" required min="0" value="5">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="proveedor">Proveedor</label>
+                        <input type="text" id="proveedor" placeholder="Nombre del proveedor">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px;">
+                        💾 Guardar Producto
+                    </button>
+                </form>
+            </div>
+
+            <div class="inventory-container">
+                <h2 style="margin-bottom: 20px; color: #ffd700;">📊 Resumen de Inventario</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalProductos">0</div>
+                        <div class="stat-label">Total Productos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stockBajoCount">0</div>
+                        <div class="stat-label">Stock Bajo</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="valorInventario">$0</div>
+                        <div class="stat-label">Valor Inventario</div>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <div class="filter-btn active" onclick="filtrarProductos('todos')">Todos</div>
+                    <div class="filter-btn" onclick="filtrarProductos('bajo')">Stock Bajo</div>
+                    <div class="filter-btn" onclick="filtrarProductos('cosmeticos')">Cosméticos</div>
+                    <div class="filter-btn" onclick="filtrarProductos('herramientas')">Herramientas</div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Categoría</th>
+                                <th>Stock</th>
+                                <th>Precio Compra</th>
+                                <th>Precio Venta</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryBody">
+                            <!-- Los productos se cargarán aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="data-manager.js"></script>
+    <script>
+        let filtroActual = 'todos';
+        let productoEditando = null;
+
+        function cargarInventario() {
+            actualizarEstadisticas();
+            mostrarProductos();
+        }
+
+        function actualizarEstadisticas() {
+            const productos = dataManager.getInventario();
+            const stockBajo = productos.filter(p => p.stock <= p.stockMinimo).length;
+            const valorInventario = productos.reduce((sum, p) => sum + (p.precioCompra * p.stock), 0);
+            
+            document.getElementById('totalProductos').textContent = productos.length;
+            document.getElementById('stockBajoCount').textContent = stockBajo;
+            document.getElementById('valorInventario').textContent = dataManager.formatCurrency(valorInventario);
+        }
+
+        function mostrarProductos() {
+            let productos = dataManager.getInventario();
+            const tbody = document.getElementById('inventoryBody');
+            
+            // Aplicar filtros
+            if (filtroActual === 'bajo') {
+                productos = productos.filter(p => p.stock <= p.stockMinimo);
+            } else if (filtroActual === 'cosmeticos') {
+                productos = productos.filter(p => p.categoria === 'cosmeticos');
+            } else if (filtroActual === 'herramientas') {
+                productos = productos.filter(p => p.categoria === 'herramientas');
+            }
+            
+            if (productos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">No se encontraron productos</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = productos.map(producto => {
+                const stockClass = producto.stock === 0 ? 'stock-out' : 
+                                 producto.stock <= producto.stockMinimo ? 'stock-low' : '';
+                const stockIndicator = producto.stock === 0 ? 'stock-low-ind' :
+                                     producto.stock <= producto.stockMinimo ? 'stock-low-ind' :
+                                     producto.stock <= producto.stockMinimo * 2 ? 'stock-medium' : 'stock-high';
+                
+                return `
+                    <tr class="${stockClass}">
+                        <td>
+                            <span class="stock-indicator ${stockIndicator}"></span>
+                            <strong>${producto.nombre}</strong>
+                            ${producto.proveedor ? `<br><small>Prov: ${producto.proveedor}</small>` : ''}
+                        </td>
+                        <td>${producto.categoria}</td>
+                        <td>
+                            <strong>${producto.stock}</strong>
+                            <small style="color: #ccc; display: block;">Mín: ${producto.stockMinimo}</small>
+                        </td>
+                        <td>${dataManager.formatCurrency(producto.precioCompra)}</td>
+                        <td>${dataManager.formatCurrency(producto.precioVenta)}</td>
+                        <td>
+                            <button class="action-btn btn-edit" onclick="editarProducto(${producto.id})">
+                                ✏️ Editar
+                            </button>
+                            <button class="action-btn btn-restock" onclick="abrirReabastecer(${producto.id})">
+                                📦 Reabastecer
+                            </button>
+                            <button class="action-btn btn-delete" onclick="eliminarProducto(${producto.id})">
+                                🗑️ Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filtrarProductos(filtro) {
+            filtroActual = filtro;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            mostrarProductos();
+        }
+
+        document.getElementById('productoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const producto = {
+                nombre: document.getElementById('nombre').value,
+                categoria: document.getElementById('categoria').value,
+                precioCompra: parseInt(document.getElementById('precioCompra').value),
+                precioVenta: parseInt(document.getElementById('precioVenta').value),
+                stock: parseInt(document.getElementById('stock').value),
+                stockMinimo: parseInt(document.getElementById('stockMinimo').value),
+                proveedor: document.getElementById('proveedor').value
+            };
+
+            if (productoEditando) {
+                // Modo edición
+                if (dataManager.updateProducto(productoEditando, producto)) {
+                    alert('✅ Producto actualizado exitosamente');
+                    productoEditando = null;
+                    document.querySelector('#productoForm button').textContent = '💾 Guardar Producto';
+                }
+            } else {
+                // Modo nuevo
+                dataManager.addProducto(producto);
+                alert('✅ Producto agregado exitosamente');
+            }
+
+            // Limpiar formulario
+            this.reset();
+            document.getElementById('stock').value = 0;
+            document.getElementById('stockMinimo').value = 5;
+            
+            // Recargar inventario
+            cargarInventario();
+        });
+
+        // Necesitamos agregar estas funciones al DataManager
+        DataManager.prototype.updateProducto = function(id, updates) {
+            const data = this.getData();
+            const index = data.inventario.findIndex(p => p.id === id);
+            if (index !== -1) {
+                data.inventario[index] = { ...data.inventario[index], ...updates };
+                this.saveData(data);
+                return true;
+            }
+            return false;
+        };
+
+        DataManager.prototype.getProductosBajoStock = function() {
+            return this.getInventario().filter(producto => producto.stock <= producto.stockMinimo);
+        };
+
+        function editarProducto(id) {
+            const producto = dataManager.getInventario().find(p => p.id === id);
+            if (producto) {
+                document.getElementById('nombre').value = producto.nombre;
+                document.getElementById('categoria').value = producto.categoria;
+                document.getElementById('precioCompra').value = producto.precioCompra;
+                document.getElementById('precioVenta').value = producto.precioVenta;
+                document.getElementById('stock').value = producto.stock;
+                document.getElementById('stockMinimo').value = producto.stockMinimo;
+                document.getElementById('proveedor').value = producto.proveedor || '';
+                
+                productoEditando = id;
+                document.querySelector('#productoForm button').textContent = '💾 Actualizar Producto';
+                
+                // Scroll al formulario
+                document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function abrirReabastecer(id) {
+            const producto = dataManager.getInventario().find(p => p.id === id);
+            if (producto) {
+                const cantidad = prompt(`¿Cuántas unidades deseas agregar a ${producto.nombre}?`, "10");
+                if (cantidad && !isNaN(cantidad) && parseInt(cantidad) > 0) {
+                    const updates = { stock: producto.stock + parseInt(cantidad) };
+                    if (dataManager.updateProducto(id, updates)) {
+                        alert(`✅ Stock actualizado: ${producto.stock} → ${updates.stock}`);
+                        cargarInventario();
+                    }
+                }
+            }
+        }
+
+        function eliminarProducto(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                const data = dataManager.getData();
+                data.inventario = data.inventario.filter(p => p.id !== id);
+                dataManager.saveData(data);
+                cargarInventario();
+                alert('✅ Producto eliminado exitosamente');
+            }
+        }
+
+        // Cargar inventario al iniciar
+        document.addEventListener('DOMContentLoaded', cargarInventario);
+    </script>
+</body>
+</html>

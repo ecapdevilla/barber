@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ganancias - BarberApp</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+
+        .header h1 {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #ffd700;
+            color: #1a1a1a;
+        }
+
+        .btn-primary:hover {
+            background: #ffed4e;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .filters-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ccc;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-card .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .label {
+            font-size: 0.9em;
+            color: #ccc;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container, .breakdown-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ccc;
+            font-size: 1.1em;
+        }
+
+        .breakdown-list {
+            margin-top: 20px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .breakdown-bar {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+
+        .breakdown-fill {
+            height: 100%;
+            background: #ffd700;
+            border-radius: 4px;
+        }
+
+        .transactions-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+
+        .transaction-type {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .type-service { background: rgba(52, 152, 219, 0.3); color: #3498db; }
+        .type-sale { background: rgba(46, 204, 113, 0.3); color: #2ecc71; }
+
+        .export-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Reportes de Ganancias</h1>
+            <div class="nav-buttons">
+                <a href="index.html" class="btn btn-secondary">🏠 Dashboard</a>
+                <a href="servicios.html" class="btn btn-primary">✂️ Servicios</a>
+            </div>
+        </div>
+
+        <div class="filters-section">
+            <div class="filter-options">
+                <div class="form-group">
+                    <label for="periodo">Período</label>
+                    <select id="periodo" onchange="cambiarPeriodo()">
+                        <option value="hoy">Hoy</option>
+                        <option value="semana">Esta Semana</option>
+                        <option value="mes" selected>Este Mes</option>
+                        <option value="custom">Personalizado</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="fechaInicioGroup" style="display: none;">
+                    <label for="fechaInicio">Fecha Inicio</label>
+                    <input type="date" id="fechaInicio">
+                </div>
+
+                <div class="form-group" id="fechaFinGroup" style="display: none;">
+                    <label for="fechaFin">Fecha Fin</label>
+                    <input type="date" id="fechaFin">
+                </div>
+
+                <div class="form-group">
+                    <label for="tipoReporte">Tipo de Reporte</label>
+                    <select id="tipoReporte" onchange="cargarReportes()">
+                        <option value="resumen">Resumen General</option>
+                        <option value="servicios">Por Servicios</option>
+                        <option value="productos">Por Productos</option>
+                        <option value="diario">Diario</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="number" id="gananciasTotales">$0</div>
+                <div class="label">Ganancias Totales</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalServicios">0</div>
+                <div class="label">Servicios Realizados</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalVentas">0</div>
+                <div class="label">Productos Vendidos</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="promedioDia">$0</div>
+                <div class="label">Promedio por Día</div>
+            </div>
+        </div>
+
+        <div class="charts-section">
+            <div class="chart-container">
+                <h2 style="margin-bottom: 20px; color: #ffd700;">📈 Tendencia de Ganancias</h2>
+                <div class="chart-placeholder">
+                    📊 Gráfico de tendencias (Implementar con librería como Chart.js)
+                </div>
+            </div>
+
+            <div class="breakdown-container">
+                <h2 style="margin-bottom: 20px; color: #ffd700;">🧮 Desglose por Tipo</h2>
+                <div class="breakdown-list" id="breakdownList">
+                    <!-- El desglose se cargará aquí -->
+                </div>
+            </div>
+        </div>
+
+        <div class="transactions-section">
+            <h2 style="margin-bottom: 20px; color: #ffd700;">💳 Transacciones Recientes</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                            <th>Cliente</th>
+                            <th>Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsBody">
+                        <!-- Las transacciones se cargarán aquí -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="export-section">
+            <button class="btn btn-primary" onclick="exportarReporte()">
+                📄 Exportar Reporte
+            </button>
+        </div>
+    </div>
+
+    <script src="data-manager.js"></script>
+    <script>
+        let periodoActual = 'mes';
+
+        function cargarReportes() {
+            actualizarEstadisticas();
+            cargarDesglose();
+            cargarTransacciones();
+        }
+
+        function cambiarPeriodo() {
+            periodoActual = document.getElementById('periodo').value;
+            const fechaInicioGroup = document.getElementById('fechaInicioGroup');
+            const fechaFinGroup = document.getElementById('fechaFinGroup');
+            
+            if (periodoActual === 'custom') {
+                fechaInicioGroup.style.display = 'block';
+                fechaFinGroup.style.display = 'block';
+            } else {
+                fechaInicioGroup.style.display = 'none';
+                fechaFinGroup.style.display = 'none';
+            }
+            
+            cargarReportes();
+        }
+
+        function obtenerRangoFechas() {
+            const hoy = new Date();
+            let inicio, fin;
+
+            switch (periodoActual) {
+                case 'hoy':
+                    inicio = new Date(hoy);
+                    fin = new Date(hoy);
+                    break;
+                case 'semana':
+                    inicio = new Date(hoy);
+                    inicio.setDate(hoy.getDate() - hoy.getDay()); // Domingo de esta semana
+                    fin = new Date(hoy);
+                    fin.setDate(hoy.getDate() + (6 - hoy.getDay())); // Sábado de esta semana
+                    break;
+                case 'mes':
+                    inicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+                    fin = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+                    break;
+                case 'custom':
+                    inicio = new Date(document.getElementById('fechaInicio').value);
+                    fin = new Date(document.getElementById('fechaFin').value);
+                    break;
+            }
+
+            return { inicio: inicio.toISOString().split('T')[0], fin: fin.toISOString().split('T')[0] };
+        }
+
+        function actualizarEstadisticas() {
+            const { inicio, fin } = obtenerRangoFechas();
+            const servicios = dataManager.getServiciosRealizados();
+            const ventas = dataManager.getVentas();
+            
+            // Filtrar por período
+            const serviciosPeriodo = servicios.filter(s => s.fecha >= inicio && s.fecha <= fin);
+            const ventasPeriodo = ventas.filter(v => v.fecha >= inicio && v.fecha <= fin);
+            
+            // Cálculos
+            const gananciasServicios = serviciosPeriodo.reduce((sum, s) => sum + s.precio, 0);
+            const gananciasVentas = ventasPeriodo.reduce((sum, v) => sum + v.total, 0);
+            const gananciasTotales = gananciasServicios + gananciasVentas;
+            
+            // Días en el período
+            const dias = Math.max(1, Math.ceil((new Date(fin) - new Date(inicio)) / (1000 * 60 * 60 * 24)) + 1);
+            const promedioDia = gananciasTotales / dias;
+            
+            // Actualizar UI
+            document.getElementById('gananciasTotales').textContent = dataManager.formatCurrency(gananciasTotales);
+            document.getElementById('totalServicios').textContent = serviciosPeriodo.length;
+            document.getElementById('totalVentas').textContent = ventasPeriodo.reduce((sum, v) => sum + v.items.reduce((itemSum, item) => itemSum + item.cantidad, 0), 0);
+            document.getElementById('promedioDia').textContent = dataManager.formatCurrency(promedioDia);
+        }
+
+        function cargarDesglose() {
+            const { inicio, fin } = obtenerRangoFechas();
+            const servicios = dataManager.getServiciosRealizados().filter(s => s.fecha >= inicio && s.fecha <= fin);
+            const ventas = dataManager.getVentas().filter(v => v.fecha >= inicio && v.fecha <= fin);
+            
+            const gananciasServicios = servicios.reduce((sum, s) => sum + s.precio, 0);
+            const gananciasVentas = ventas.reduce((sum, v) => sum + v.total, 0);
+            const total = gananciasServicios + gananciasVentas;
+            
+            const breakdownList = document.getElementById('breakdownList');
+            
+            if (total === 0) {
+                breakdownList.innerHTML = '<div style="text-align: center; padding: 20px; color: #ccc;">No hay datos para el período seleccionado</div>';
+                return;
+            }
+            
+            const items = [
+                { label: 'Servicios', monto: gananciasServicios, porcentaje: total > 0 ? (gananciasServicios / total) * 100 : 0 },
+                { label: 'Ventas', monto: gananciasVentas, porcentaje: total > 0 ? (gananciasVentas / total) * 100 : 0 }
+            ];
+            
+            breakdownList.innerHTML = items.map(item => `
+                <div class="breakdown-item">
+                    <span>${item.label}</span>
+                    <div class="breakdown-bar">
+                        <div class="breakdown-fill" style="width: ${item.porcentaje}%"></div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: bold;">${dataManager.formatCurrency(item.monto)}</div>
+                        <small style="color: #ccc;">${item.porcentaje.toFixed(1)}%</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function cargarTransacciones() {
+            const { inicio, fin } = obtenerRangoFechas();
+            const servicios = dataManager.getServiciosRealizados().filter(s => s.fecha >= inicio && s.fecha <= fin);
+            const ventas = dataManager.getVentas().filter(v => v.fecha >= inicio && v.fecha <= fin);
+            const clientes = dataManager.getClientes();
+            const serviciosList = dataManager.getServicios();
+            
+            // Combinar y ordenar transacciones
+            const transacciones = [
+                ...servicios.map(s => ({
+                    fecha: s.fecha,
+                    tipo: 'service',
+                    tipoLabel: 'Servicio',
+                    descripcion: serviciosList.find(serv => serv.id === s.servicioId)?.nombre || 'Servicio',
+                    cliente: clientes.find(c => c.id === s.clienteId)?.nombre || 'Cliente',
+                    monto: s.precio
+                })),
+                ...ventas.map(v => ({
+                    fecha: v.fecha,
+                    tipo: 'sale',
+                    tipoLabel: 'Venta',
+                    descripcion: `Venta de ${v.items.length} producto(s)`,
+                    cliente: v.clienteId ? clientes.find(c => c.id === v.clienteId)?.nombre || 'Cliente' : 'Venta rápida',
+                    monto: v.total
+                }))
+            ].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            
+            const transactionsBody = document.getElementById('transactionsBody');
+            
+            if (transacciones.length === 0) {
+                transactionsBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">No hay transacciones en el período</td></tr>';
+                return;
+            }
+            
+            transactionsBody.innerHTML = transacciones.map(trans => `
+                <tr>
+                    <td>${trans.fecha}</td>
+                    <td>
+                        <span class="transaction-type type-${trans.tipo}">${trans.tipoLabel}</span>
+                    </td>
+                    <td>${trans.descripcion}</td>
+                    <td>${trans.cliente}</td>
+                    <td style="font-weight: bold; color: #ffd700;">${dataManager.formatCurrency(trans.monto)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function exportarReporte() {
+            const { inicio, fin } = obtenerRangoFechas();
+            const servicios = dataManager.getServiciosRealizados().filter(s => s.fecha >= inicio && s.fecha <= fin);
+            const ventas = dataManager.getVentas().filter(v => v.fecha >= inicio && s.fecha <= fin);
+            
+            const gananciasServicios = servicios.reduce((sum, s) => sum + s.precio, 0);
+            const gananciasVentas = ventas.reduce((sum, v) => sum + v.total, 0);
+            const total = gananciasServicios + gananciasVentas;
+            
+            const reporte = `
+REPORTE DE GANANCIAS - BARBERAPP
+Período: ${inicio} a ${fin}
+
+ESTADÍSTICAS PRINCIPALES:
+• Ganancias Totales: ${dataManager.formatCurrency(total)}
+• Servicios Realizados: ${servicios.length}
+• Productos Vendidos: ${ventas.reduce((sum, v) => sum + v.items.reduce((itemSum, item) => itemSum + item.cantidad, 0), 0)}
+• Ganancias por Servicios: ${dataManager.formatCurrency(gananciasServicios)}
+• Ganancias por Ventas: ${dataManager.formatCurrency(gananciasVentas)}
+
+DESGLOSE:
+• Servicios: ${dataManager.formatCurrency(gananciasServicios)} (${total > 0 ? ((gananciasServicios / total) * 100).toFixed(1) : 0}%)
+• Ventas: ${dataManager.formatCurrency(gananciasVentas)} (${total > 0 ? ((gananciasVentas / total) * 100).toFixed(1) : 0}%)
+
+Generado el: ${new Date().toLocaleDateString('es-CO')}
+            `.trim();
+            
+            // Crear y descargar archivo
+            const blob = new Blob([reporte], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `reporte-ganancias-${inicio}-a-${fin}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('📄 Reporte exportado exitosamente');
+        }
+
+        // Configurar fechas por defecto
+        document.addEventListener('DOMContentLoaded', function() {
+            const hoy = new Date().toISOString().split('T')[0];
+            const inicioMes = new Date();
+            inicioMes.setDate(1);
+            
+            document.getElementById('fechaInicio').value = inicioMes.toISOString().split('T')[0];
+            document.getElementById('fechaFin').value = hoy;
+            
+            cargarReportes();
+        });
+    </script>
+</body>
+</html>

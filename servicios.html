@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios - BarberApp</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+
+        .header h1 {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #ffd700;
+            color: #1a1a1a;
+        }
+
+        .btn-primary:hover {
+            background: #ffed4e;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .service-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .form-container, .services-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+
+        .client-search {
+            position: relative;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #2d2d2d;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .search-result-item:hover {
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .service-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .service-card.selected {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .service-card:hover {
+            border-color: #ffd700;
+        }
+
+        .service-price {
+            font-size: 1.2em;
+            color: #ffd700;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .summary-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .total {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #ffd700;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid #ffd700;
+        }
+
+        .history-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .service-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✂️ Atención de Servicios</h1>
+            <div class="nav-buttons">
+                <a href="index.html" class="btn btn-secondary">🏠 Dashboard</a>
+                <a href="clientes.html" class="btn btn-primary">👥 Clientes</a>
+            </div>
+        </div>
+
+        <div class="service-section">
+            <div class="form-container">
+                <h2 style="margin-bottom: 20px; color: #ffd700;">🛎️ Registrar Servicio</h2>
+                
+                <div class="form-group client-search">
+                    <label for="clienteSearch">Buscar Cliente</label>
+                    <input type="text" id="clienteSearch" placeholder="🔍 Escribe el nombre o WhatsApp del cliente...">
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nuevoCliente">O crear cliente rápido</label>
+                    <input type="text" id="nuevoCliente" placeholder="Nombre del nuevo cliente">
+                    <input type="tel" id="nuevoWhatsApp" placeholder="WhatsApp" style="margin-top: 10px;">
+                </div>
+
+                <div class="form-group">
+                    <label>Seleccionar Servicios</label>
+                    <div class="services-grid" id="servicesGrid">
+                        <!-- Los servicios se cargarán aquí -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="barbero">Barbero</label>
+                    <input type="text" id="barbero" placeholder="Nombre del barbero">
+                </div>
+
+                <div class="form-group">
+                    <label for="notas">Notas del Servicio</label>
+                    <input type="text" id="notas" placeholder="Detalles adicionales del servicio...">
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.1em;" onclick="registrarServicio()">
+                    💰 Registrar Servicio y Pago
+                </button>
+            </div>
+
+            <div class="services-container">
+                <h2 style="margin-bottom: 20px; color: #ffd700;">📊 Resumen del Servicio</h2>
+                
+                <div class="summary-section">
+                    <div id="selectedClient" style="margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                        <strong>Cliente:</strong> <span id="clientName">No seleccionado</span>
+                    </div>
+                    
+                    <div id="selectedServices">
+                        <div class="summary-item">
+                            <span>No hay servicios seleccionados</span>
+                        </div>
+                    </div>
+                    
+                    <div class="total">
+                        Total: <span id="totalAmount">$0</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #ffd700; margin-bottom: 15px;">⚙️ Gestión de Servicios</h3>
+                    <button class="btn btn-secondary" onclick="abrirGestionServicios()">
+                        📋 Gestionar Servicios
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <h2 style="margin-bottom: 20px; color: #ffd700;">📋 Historial de Hoy</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Servicio</th>
+                            <th>Barbero</th>
+                            <th>Precio</th>
+                            <th>Hora</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        <!-- El historial se cargará aquí -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="data-manager.js"></script>
+    <script>
+        let clienteSeleccionado = null;
+        let serviciosSeleccionados = [];
+
+        function cargarServicios() {
+            const servicios = dataManager.getServicios();
+            const servicesGrid = document.getElementById('servicesGrid');
+            
+            servicesGrid.innerHTML = servicios.filter(s => s.activo).map(servicio => `
+                <div class="service-card" onclick="seleccionarServicio(${servicio.id})" id="service-${servicio.id}">
+                    <h3>${servicio.nombre}</h3>
+                    <div class="service-price">${dataManager.formatCurrency(servicio.precio)}</div>
+                    <div style="font-size: 0.9em; color: #ccc;">${servicio.duracion} min</div>
+                </div>
+            `).join('');
+
+            cargarHistorialHoy();
+        }
+
+        function seleccionarServicio(servicioId) {
+            const servicio = dataManager.getServicios().find(s => s.id === servicioId);
+            const card = document.getElementById(`service-${servicioId}`);
+            
+            const index = serviciosSeleccionados.findIndex(s => s.id === servicioId);
+            
+            if (index === -1) {
+                serviciosSeleccionados.push(servicio);
+                card.classList.add('selected');
+            } else {
+                serviciosSeleccionados.splice(index, 1);
+                card.classList.remove('selected');
+            }
+            
+            actualizarResumen();
+        }
+
+        function actualizarResumen() {
+            const total = serviciosSeleccionados.reduce((sum, servicio) => sum + servicio.precio, 0);
+            
+            document.getElementById('totalAmount').textContent = dataManager.formatCurrency(total);
+            
+            const selectedServicesDiv = document.getElementById('selectedServices');
+            selectedServicesDiv.innerHTML = serviciosSeleccionados.map(servicio => `
+                <div class="summary-item">
+                    <span>${servicio.nombre}</span>
+                    <span>${dataManager.formatCurrency(servicio.precio)}</span>
+                </div>
+            `).join('');
+        }
+
+        // Búsqueda de clientes
+        document.getElementById('clienteSearch').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            const results = document.getElementById('searchResults');
+            const clientes = dataManager.getClientes();
+            
+            if (query.length < 2) {
+                results.style.display = 'none';
+                return;
+            }
+            
+            const filtered = clientes.filter(cliente => 
+                cliente.nombre.toLowerCase().includes(query) || 
+                cliente.whatsapp.includes(query)
+            );
+            
+            if (filtered.length > 0) {
+                results.innerHTML = filtered.map(cliente => `
+                    <div class="search-result-item" onclick="seleccionarCliente(${cliente.id})">
+                        <strong>${cliente.nombre}</strong><br>
+                        <small>${cliente.whatsapp}</small>
+                    </div>
+                `).join('');
+                results.style.display = 'block';
+            } else {
+                results.style.display = 'none';
+            }
+        });
+
+        function seleccionarCliente(clienteId) {
+            const cliente = dataManager.getClientes().find(c => c.id === clienteId);
+            clienteSeleccionado = cliente;
+            
+            document.getElementById('clienteSearch').value = cliente.nombre;
+            document.getElementById('clientName').textContent = cliente.nombre;
+            document.getElementById('searchResults').style.display = 'none';
+        }
+
+        function registrarServicio() {
+            if (serviciosSeleccionados.length === 0) {
+                alert('❌ Debes seleccionar al menos un servicio');
+                return;
+            }
+
+            // Verificar si es cliente nuevo o existente
+            let clienteId = clienteSeleccionado ? clienteSeleccionado.id : null;
+            
+            // Si no hay cliente seleccionado pero hay datos en nuevo cliente
+            if (!clienteSeleccionado && document.getElementById('nuevoCliente').value) {
+                const nuevoCliente = {
+                    nombre: document.getElementById('nuevoCliente').value,
+                    whatsapp: document.getElementById('nuevoWhatsApp').value || '0000000000'
+                };
+                clienteId = dataManager.addCliente(nuevoCliente);
+            }
+
+            if (!clienteId) {
+                alert('❌ Debes seleccionar o crear un cliente');
+                return;
+            }
+
+            // Registrar cada servicio
+            serviciosSeleccionados.forEach(servicio => {
+                const servicioRealizado = {
+                    clienteId: clienteId,
+                    servicioId: servicio.id,
+                    precio: servicio.precio,
+                    barbero: document.getElementById('barbero').value || 'No especificado',
+                    notas: document.getElementById('notas').value
+                };
+                
+                dataManager.addServicioRealizado(servicioRealizado);
+            });
+
+            // Limpiar formulario
+            clienteSeleccionado = null;
+            serviciosSeleccionados = [];
+            document.getElementById('clienteSearch').value = '';
+            document.getElementById('nuevoCliente').value = '';
+            document.getElementById('nuevoWhatsApp').value = '';
+            document.getElementById('barbero').value = '';
+            document.getElementById('notas').value = '';
+            document.getElementById('clientName').textContent = 'No seleccionado';
+            
+            // Actualizar UI
+            document.querySelectorAll('.service-card').forEach(card => card.classList.remove('selected'));
+            actualizarResumen();
+            cargarHistorialHoy();
+            
+            alert('✅ Servicio registrado exitosamente');
+        }
+
+        function cargarHistorialHoy() {
+            const hoy = new Date().toISOString().split('T')[0];
+            const serviciosHoy = dataManager.getServiciosRealizados().filter(s => s.fecha === hoy);
+            const clientes = dataManager.getClientes();
+            const servicios = dataManager.getServicios();
+            
+            const historyBody = document.getElementById('historyBody');
+            
+            if (serviciosHoy.length === 0) {
+                historyBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">No hay servicios registrados hoy</td></tr>';
+                return;
+            }
+            
+            historyBody.innerHTML = serviciosHoy.map(servicio => {
+                const cliente = clientes.find(c => c.id === servicio.clienteId);
+                const servicioInfo = servicios.find(s => s.id === servicio.servicioId);
+                const hora = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+                
+                return `
+                    <tr>
+                        <td>${cliente ? cliente.nombre : 'Cliente no encontrado'}</td>
+                        <td>${servicioInfo ? servicioInfo.nombre : 'Servicio no encontrado'}</td>
+                        <td>${servicio.barbero}</td>
+                        <td>${dataManager.formatCurrency(servicio.precio)}</td>
+                        <td>${hora}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function abrirGestionServicios() {
+            // En un sistema real, esto abriría un modal o otra página
+            alert('🔧 Esta funcionalidad abriría la gestión completa de servicios');
+        }
+
+        // Cargar servicios al iniciar
+        document.addEventListener('DOMContentLoaded', cargarServicios);
+    </script>
+</body>
+</html>

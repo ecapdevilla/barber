@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventas - BarberApp</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+
+        .header h1 {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #ffd700;
+            color: #1a1a1a;
+        }
+
+        .btn-primary:hover {
+            background: #ffed4e;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .sales-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .form-container, .cart-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            border-color: #ffd700;
+        }
+
+        .product-card.out-of-stock {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .product-price {
+            color: #ffd700;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .product-stock {
+            font-size: 0.8em;
+            color: #ccc;
+        }
+
+        .cart-items {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-btn {
+            background: #ffd700;
+            color: #1a1a1a;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .remove-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        .summary-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .total {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #ffd700;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid #ffd700;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .payment-method {
+            padding: 10px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .payment-method.selected {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .history-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .sales-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛍️ Venta de Productos</h1>
+            <div class="nav-buttons">
+                <a href="index.html" class="btn btn-secondary">🏠 Dashboard</a>
+                <a href="inventario.html" class="btn btn-primary">📦 Inventario</a>
+            </div>
+        </div>
+
+        <div class="sales-section">
+            <div class="form-container">
+                <h2 style="margin-bottom: 20px; color: #ffd700;">🛒 Carrito de Ventas</h2>
+                
+                <div class="form-group">
+                    <label for="clienteVenta">Cliente (Opcional)</label>
+                    <select id="clienteVenta">
+                        <option value="">Venta rápida (sin cliente)</option>
+                        <!-- Los clientes se cargarán aquí -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Productos Disponibles</label>
+                    <div class="products-grid" id="productsGrid">
+                        <!-- Los productos se cargarán aquí -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="cart-container">
+                <h2 style="margin-bottom: 20px; color: #ffd700;">📋 Resumen de Venta</h2>
+                
+                <div class="cart-items" id="cartItems">
+                    <div style="text-align: center; padding: 20px; color: #ccc;">
+                        No hay productos en el carrito
+                    </div>
+                </div>
+
+                <div class="summary-section">
+                    <div class="summary-item">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">$0</span>
+                    </div>
+                    <div class="total">
+                        <span>Total:</span>
+                        <span id="totalVenta">$0</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="margin-bottom: 15px; display: block;">Método de Pago</label>
+                    <div class="payment-methods">
+                        <div class="payment-method selected" onclick="seleccionarMetodoPago('efectivo')">
+                            💵 Efectivo
+                        </div>
+                        <div class="payment-method" onclick="seleccionarMetodoPago('transferencia')">
+                            📱 Transferencia
+                        </div>
+                        <div class="payment-method" onclick="seleccionarMetodoPago('tarjeta')">
+                            💳 Tarjeta
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.1em; margin-top: 20px;" onclick="procesarVenta()">
+                    ✅ Procesar Venta
+                </button>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <h2 style="margin-bottom: 20px; color: #ffd700;">📊 Ventas de Hoy</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th># Venta</th>
+                            <th>Cliente</th>
+                            <th>Productos</th>
+                            <th>Total</th>
+                            <th>Método</th>
+                            <th>Hora</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ventasBody">
+                        <!-- Las ventas se cargarán aquí -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="data-manager.js"></script>
+    <script>
+        let carrito = [];
+        let metodoPago = 'efectivo';
+
+        function cargarVentas() {
+            cargarClientesSelect();
+            cargarProductos();
+            cargarVentasHoy();
+        }
+
+        function cargarClientesSelect() {
+            const select = document.getElementById('clienteVenta');
+            const clientes = dataManager.getClientes();
+            
+            select.innerHTML = '<option value="">Venta rápida (sin cliente)</option>' +
+                clientes.map(cliente => `
+                    <option value="${cliente.id}">${cliente.nombre} - ${cliente.whatsapp}</option>
+                `).join('');
+        }
+
+        function cargarProductos() {
+            const productos = dataManager.getInventario().filter(p => p.stock > 0);
+            const productsGrid = document.getElementById('productsGrid');
+            
+            if (productos.length === 0) {
+                productsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: #ccc;">No hay productos en inventario</div>';
+                return;
+            }
+            
+            productsGrid.innerHTML = productos.map(producto => `
+                <div class="product-card" onclick="agregarAlCarrito(${producto.id})">
+                    <h4>${producto.nombre}</h4>
+                    <div class="product-price">${dataManager.formatCurrency(producto.precioVenta)}</div>
+                    <div class="product-stock">Stock: ${producto.stock}</div>
+                </div>
+            `).join('');
+        }
+
+        function agregarAlCarrito(productoId) {
+            const producto = dataManager.getInventario().find(p => p.id === productoId);
+            
+            if (!producto || producto.stock === 0) {
+                alert('❌ Producto sin stock disponible');
+                return;
+            }
+
+            const itemExistente = carrito.find(item => item.productoId === productoId);
+            
+            if (itemExistente) {
+                if (itemExistente.cantidad >= producto.stock) {
+                    alert('❌ No hay suficiente stock disponible');
+                    return;
+                }
+                itemExistente.cantidad++;
+            } else {
+                carrito.push({
+                    productoId: productoId,
+                    nombre: producto.nombre,
+                    precio: producto.precioVenta,
+                    cantidad: 1,
+                    stockDisponible: producto.stock
+                });
+            }
+            
+            actualizarCarrito();
+        }
+
+        function actualizarCarrito() {
+            const cartItems = document.getElementById('cartItems');
+            const subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+            
+            if (carrito.length === 0) {
+                cartItems.innerHTML = '<div style="text-align: center; padding: 20px; color: #ccc;">No hay productos en el carrito</div>';
+            } else {
+                cartItems.innerHTML = carrito.map(item => `
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <strong>${item.nombre}</strong><br>
+                            <small>${dataManager.formatCurrency(item.precio)} c/u</small>
+                        </div>
+                        <div class="cart-item-controls">
+                            <button class="quantity-btn" onclick="modificarCantidad(${item.productoId}, -1)">-</button>
+                            <span style="margin: 0 10px; font-weight: bold;">${item.cantidad}</span>
+                            <button class="quantity-btn" onclick="modificarCantidad(${item.productoId}, 1)">+</button>
+                            <button class="remove-btn" onclick="removerDelCarrito(${item.productoId})">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('subtotal').textContent = dataManager.formatCurrency(subtotal);
+            document.getElementById('totalVenta').textContent = dataManager.formatCurrency(subtotal);
+        }
+
+        function modificarCantidad(productoId, cambio) {
+            const item = carrito.find(i => i.productoId === productoId);
+            if (!item) return;
+            
+            const nuevaCantidad = item.cantidad + cambio;
+            
+            if (nuevaCantidad < 1) {
+                removerDelCarrito(productoId);
+                return;
+            }
+            
+            if (nuevaCantidad > item.stockDisponible) {
+                alert('❌ No hay suficiente stock disponible');
+                return;
+            }
+            
+            item.cantidad = nuevaCantidad;
+            actualizarCarrito();
+        }
+
+        function removerDelCarrito(productoId) {
+            carrito = carrito.filter(item => item.productoId !== productoId);
+            actualizarCarrito();
+        }
+
+        function seleccionarMetodoPago(metodo) {
+            metodoPago = metodo;
+            document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+
+        function procesarVenta() {
+            if (carrito.length === 0) {
+                alert('❌ El carrito está vacío');
+                return;
+            }
+
+            const clienteId = document.getElementById('clienteVenta').value || null;
+            const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+            
+            const venta = {
+                clienteId: clienteId,
+                items: carrito.map(item => ({
+                    productoId: item.productoId,
+                    cantidad: item.cantidad,
+                    precio: item.precio
+                })),
+                total: total,
+                tipoPago: metodoPago
+            };
+            
+            dataManager.addVenta(venta);
+            
+            // Limpiar carrito
+            carrito = [];
+            actualizarCarrito();
+            document.getElementById('clienteVenta').value = '';
+            seleccionarMetodoPago('efectivo');
+            
+            // Recargar productos (stock actualizado)
+            cargarProductos();
+            cargarVentasHoy();
+            
+            alert('✅ Venta procesada exitosamente');
+        }
+
+        function cargarVentasHoy() {
+            const hoy = new Date().toISOString().split('T')[0];
+            const ventasHoy = dataManager.getVentas().filter(v => v.fecha === hoy);
+            const clientes = dataManager.getClientes();
+            const inventario = dataManager.getInventario();
+            
+            const ventasBody = document.getElementById('ventasBody');
+            
+            if (ventasHoy.length === 0) {
+                ventasBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No hay ventas hoy</td></tr>';
+                return;
+            }
+            
+            ventasBody.innerHTML = ventasHoy.map(venta => {
+                const cliente = clientes.find(c => c.id === venta.clienteId);
+                const productos = venta.items.map(item => {
+                    const producto = inventario.find(p => p.id === item.productoId);
+                    return `${producto ? producto.nombre : 'Producto'} (${item.cantidad})`;
+                }).join(', ');
+                
+                const hora = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+                
+                return `
+                    <tr>
+                        <td>#${venta.id}</td>
+                        <td>${cliente ? cliente.nombre : 'Venta rápida'}</td>
+                        <td>${productos}</td>
+                        <td>${dataManager.formatCurrency(venta.total)}</td>
+                        <td>${venta.tipoPago}</td>
+                        <td>${hora}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Cargar ventas al iniciar
+        document.addEventListener('DOMContentLoaded', cargarVentas);
+    </script>
+</body>
+</html>
